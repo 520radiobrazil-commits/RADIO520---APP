@@ -172,6 +172,18 @@
           transform: scale(1.15) translate(-2%, 2%);
         }
       }
+      @-webkit-keyframes spin-slow {
+        from { -webkit-transform: rotate(0deg); transform: rotate(0deg); }
+        to { -webkit-transform: rotate(360deg); transform: rotate(360deg); }
+      }
+      @keyframes spin-slow {
+        from { -webkit-transform: rotate(0deg); transform: rotate(0deg); }
+        to { -webkit-transform: rotate(360deg); transform: rotate(360deg); }
+      }
+      .animate-spin-slow {
+        -webkit-animation: spin-slow 20s linear infinite;
+        animation: spin-slow 20s linear infinite;
+      }
     </style>
   <script type="importmap">
 {
