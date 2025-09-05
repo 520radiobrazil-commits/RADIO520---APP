@@ -2,8 +2,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import PlayIcon from './icons/PlayIcon';
 import PauseIcon from './icons/PauseIcon';
-import VolumeIcon from './icons/VolumeIcon';
-import MuteIcon from './icons/MuteIcon';
 import LoadingSpinner from './LoadingSpinner';
 import AudioVisualizer from './AudioVisualizer';
 
@@ -11,8 +9,6 @@ const AUDIO_STREAM_URL = "https://servidor40.brlogic.com:7054/live";
 
 const AudioPlayer: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(1);
-  const [lastVolume, setLastVolume] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -69,29 +65,6 @@ const AudioPlayer: React.FC = () => {
     }
   }, [isPlaying]);
 
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = volume;
-    }
-  }, [volume]);
-
-  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newVolume = parseFloat(e.target.value);
-    setVolume(newVolume);
-    if (newVolume > 0) {
-      setLastVolume(newVolume);
-    }
-  };
-
-  const toggleMute = () => {
-    if (volume > 0) {
-      setLastVolume(volume);
-      setVolume(0);
-    } else {
-      setVolume(lastVolume > 0 ? lastVolume : 1);
-    }
-  };
-
   return (
     <div 
         className="relative w-full h-full flex flex-col items-center justify-center p-4 sm:p-8 lg:p-12 overflow-hidden"
@@ -126,24 +99,6 @@ const AudioPlayer: React.FC = () => {
             >
             {isPlaying ? <PauseIcon className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14" /> : <PlayIcon className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14" />}
             </button>
-
-            {isPlaying && (
-              <div className="flex items-center space-x-3 mt-8 w-full max-w-xs">
-                <button onClick={toggleMute} aria-label={volume > 0 ? 'Mute' : 'Unmute'}>
-                  {volume > 0 ? <VolumeIcon className="w-6 h-6 text-white hover:text-red-400 transition-colors" /> : <MuteIcon className="w-6 h-6 text-white hover:text-red-400 transition-colors" />}
-                </button>
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.01"
-                  value={volume}
-                  onChange={handleVolumeChange}
-                  className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-red-600"
-                  aria-label="Volume slider"
-                />
-              </div>
-            )}
 
         </div>
         <audio 
