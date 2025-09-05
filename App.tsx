@@ -1,4 +1,5 @@
 
+
 import React, { useState } from 'react';
 import { PlayerMode } from './types';
 import Header from './components/Header';
@@ -15,6 +16,7 @@ import { NotificationProvider } from './context/NotificationContext';
 import Notification from './components/Notification';
 import TikTokIcon from './components/icons/TikTokIcon';
 import KwaiIcon from './components/icons/KwaiIcon';
+import ChatWidget from './components/ChatWidget';
 
 const App: React.FC = () => {
   const [playerMode, setPlayerMode] = useState<PlayerMode>(PlayerMode.AUDIO);
@@ -74,6 +76,7 @@ const App: React.FC = () => {
           </div>
           <p className="text-xs text-gray-500">&copy; 2024 Rádio 520. Todos os direitos reservados.</p>
         </footer>
+        <ChatWidget />
       </div>
       <Notification />
     </NotificationProvider>

@@ -151,6 +151,27 @@
         -webkit-animation: icon-pulse-glow 4s ease-in-out infinite;
         animation: icon-pulse-glow 4s ease-in-out infinite;
       }
+
+      .kenburns {
+        -webkit-animation: kenburns-effect 20s ease-in-out infinite alternate;
+        animation: kenburns-effect 20s ease-in-out infinite alternate;
+      }
+      @-webkit-keyframes kenburns-effect {
+        from {
+          transform: scale(1) translate(0, 0);
+        }
+        to {
+          transform: scale(1.15) translate(-2%, 2%);
+        }
+      }
+      @keyframes kenburns-effect {
+        from {
+          transform: scale(1) translate(0, 0);
+        }
+        to {
+          transform: scale(1.15) translate(-2%, 2%);
+        }
+      }
     </style>
   <script type="importmap">
 {
