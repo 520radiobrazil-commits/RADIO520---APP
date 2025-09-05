@@ -1,6 +1,6 @@
 
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import BellIcon from './icons/BellIcon';
 import ScheduleIcon from './icons/ScheduleIcon';
 import ScheduleDisplay from './ScheduleDisplay';
@@ -292,6 +292,7 @@ const NowPlaying: React.FC = () => {
     const [orasomCountdown, setOrasomCountdown] = useState('00:00:00');
     const [isScheduleVisible, setIsScheduleVisible] = useState(false);
     const [activeReminders, setActiveReminders] = useState<Set<string>>(new Set());
+    const prevProgramNameRef = useRef<string | null>(null);
 
     useEffect(() => {
         try {
@@ -310,6 +311,16 @@ const NowPlaying: React.FC = () => {
         const updateSchedule = () => {
             const info = getProgramScheduleInfo();
             setProgramInfo(info);
+
+            if (
+                prevProgramNameRef.current &&
+                info.current.name &&
+                info.current.name !== 'Carregando...' &&
+                info.current.name !== prevProgramNameRef.current
+            ) {
+                showNotification(`No ar agora: ${info.current.name}`);
+            }
+            prevProgramNameRef.current = info.current.name;
 
             const orasomTime = getOrasomCountdown();
             setOrasomCountdown(orasomTime);
@@ -411,77 +422,55 @@ const NowPlaying: React.FC = () => {
                 <div className="flex items-center gap-4 text-left">
                     <img src={ORASOM_ICON_URL} alt="ORASOM 520" className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full border-2 border-red-500 shadow-lg" />
                     <div>
-                        <p className="text-sm font-bold text-red-500 uppercase tracking-widest">VEM AÍ</p>
-                        <div className="flex items-center gap-2">
-                             <p className="text-lg md:text-xl lg:text-2xl font-bold text-white">ORASOM 520</p>
-                             <button 
-                                 onClick={handleOrasomReminderClick}
-                                 className={`p-1 rounded-full hover:bg-gray-700 transition-colors duration-200 ${
-                                     isOrasomReminderSet
-                                     ? 'text-orange-500 hover:text-orange-400'
-                                     : 'text-gray-400 hover:text-white'
-                                 }`}
-                                 title={isOrasomReminderSet ? "Lembrete criado!" : "Criar lembrete para ORASOM 520"}
-                                 aria-label="Criar lembrete para o programa ORASOM 520"
-                             >
-                                 <BellIcon className="w-5 h-5" />
-                             </button>
-                        </div>
+                        <p className="text-sm font-bold text-red-500 uppercase tracking-widest">Vem aí...</p>
+                        <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">ORASOM 520</h3>
+                        <p className="text-xs text-gray-400">Todo domingo, às 05:00.</p>
                     </div>
                 </div>
 
-                {/* Right Part: Countdown Clock */}
-                <div className="flex justify-center items-start space-x-1 md:space-x-2">
-                    {/* Hours */}
-                    <div className="flex flex-col items-center">
-                        <div className="bg-black/25 rounded-lg p-2 md:p-3 w-14 md:w-16 text-center shadow-inner">
-                            <span className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-mono font-bold text-red-500 text-glow">
-                                {hours || '00'}
-                            </span>
+                {/* Right Part: Countdown and Buttons */}
+                <div className="flex flex-col items-center gap-2">
+                    <div className="flex items-baseline space-x-1 font-mono text-white">
+                        <div className="flex flex-col items-center">
+                            <span className="text-2xl sm:text-3xl md:text-4xl font-bold">{hours}</span>
+                            <span className="text-xs uppercase text-gray-400">h</span>
                         </div>
-                        <span className="text-[9px] md:text-[11px] text-gray-500 mt-1 uppercase tracking-widest">Horas</span>
+                        <span className="text-2xl sm:text-3xl md:text-4xl font-bold">:</span>
+                        <div className="flex flex-col items-center">
+                            <span className="text-2xl sm:text-3xl md:text-4xl font-bold">{minutes}</span>
+                            <span className="text-xs uppercase text-gray-400">m</span>
+                        </div>
+                        <span className="text-2xl sm:text-3xl md:text-4xl font-bold">:</span>
+                        <div className="flex flex-col items-center">
+                            <span className="text-2xl sm:text-3xl md:text-4xl font-bold">{seconds}</span>
+                            <span className="text-xs uppercase text-gray-400">s</span>
+                        </div>
                     </div>
-                    
-                    <span className="text-xl md:text-2xl lg:text-3xl font-mono text-red-500 pt-1 md:pt-1.5 text-glow">:</span>
-                    
-                    {/* Minutes */}
-                    <div className="flex flex-col items-center">
-                        <div className="bg-black/25 rounded-lg p-2 md:p-3 w-14 md:w-16 text-center shadow-inner">
-                            <span className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-mono font-bold text-red-500 text-glow">
-                                {minutes || '00'}
-                            </span>
-                        </div>
-                        <span className="text-[9px] md:text-[11px] text-gray-500 mt-1 uppercase tracking-widest">Min</span>
-                    </div>
-                    
-                    <span className="text-xl md:text-2xl lg:text-3xl font-mono text-red-500 pt-1 md:pt-1.5 text-glow">:</span>
-
-                    {/* Seconds */}
-                    <div className="flex flex-col items-center">
-                        <div className="bg-black/25 rounded-lg p-2 md:p-3 w-14 md:w-16 text-center shadow-inner">
-                            <span className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-mono font-bold text-red-500 text-glow">
-                                {seconds || '00'}
-                            </span>
-                        </div>
-                        <span className="text-[9px] md:text-[11px] text-gray-500 mt-1 uppercase tracking-widest">Seg</span>
+                    <div className="flex items-center space-x-2">
+                        <button
+                            onClick={handleOrasomReminderClick}
+                            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors duration-200 ${
+                                isOrasomReminderSet
+                                ? 'bg-orange-600 text-white cursor-default'
+                                : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white'
+                            }`}
+                            aria-label="Criar lembrete para ORASOM 520"
+                        >
+                            <BellIcon className="w-4 h-4" />
+                            <span>{isOrasomReminderSet ? "Lembrete Criado" : "Criar Lembrete"}</span>
+                        </button>
+                        <button 
+                            onClick={toggleSchedule}
+                            className="p-1.5 rounded-full bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200"
+                            title="Ver programação completa"
+                            aria-label="Ver programação completa"
+                        >
+                            <ScheduleIcon className="w-4 h-4" />
+                        </button>
                     </div>
                 </div>
             </div>
-            
-            <div className="mt-4 border-t border-gray-700 pt-4">
-                <button 
-                    onClick={toggleSchedule}
-                    className="flex items-center justify-center mx-auto space-x-2 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 bg-gray-700 text-gray-300 hover:bg-gray-600"
-                    aria-expanded={isScheduleVisible}
-                >
-                    <ScheduleIcon className="w-5 h-5" />
-                    <span>{isScheduleVisible ? 'Ocultar Programação' : 'Ver Programação Completa'}</span>
-                </button>
-            </div>
-
-            <div className={`transition-all duration-500 ease-in-out overflow-hidden ${isScheduleVisible ? 'max-h-80 lg:max-h-96 mt-4' : 'max-h-0'}`}>
-                <ScheduleDisplay schedule={programInfo.schedule} currentProgramName={programInfo.current.name} />
-            </div>
+            {isScheduleVisible && <ScheduleDisplay schedule={programInfo.schedule} currentProgramName={programInfo.current.name} />}
         </div>
     );
 };
