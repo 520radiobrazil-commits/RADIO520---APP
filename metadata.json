@@ -1,0 +1,5 @@
+{
+  "name": "Rádio 520 Player",
+  "description": "An interactive web and mobile application to stream live video and audio from Rádio 520. Switch seamlessly between the live video broadcast and the online radio stream.",
+  "requestFramePermissions": []
+}
