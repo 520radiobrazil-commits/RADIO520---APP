@@ -405,7 +405,7 @@ const NowPlaying: React.FC = () => {
                 </div>
             </div>
 
-            <div className="mt-3 pt-3 border-t border-gray-700 flex flex-wrap justify-center md:justify-between items-center gap-4 px-2">
+            <div className="mt-3 pt-3 border-t border-gray-700 flex flex-wrap justify-center items-center gap-4 md:gap-12 px-2">
                 {/* Left Part: Image and Title */}
                 <div className="flex items-center gap-4 text-left">
                     <img src={ORASOM_ICON_URL} alt="ORASOM 520" className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 rounded-full border-2 border-red-500 shadow-lg" />

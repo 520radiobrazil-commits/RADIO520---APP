@@ -8,7 +8,7 @@ const tickerItems = [
   "Acompanhe nossa programação ao vivo em vídeo e áudio.",
   "Baixe nosso app e leve a Rádio 520 com você.",
   "Confira a cobertura completa dos eventos locais no nosso site.",
-  "PROMOÇÃO: Concorra a ingressos para o show do ano!",
+  "PEÇA SUA MÚSICA NO CHAT",
 ];
 
 const NewsTicker: React.FC = () => {

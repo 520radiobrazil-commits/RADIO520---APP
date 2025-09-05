@@ -85,6 +85,20 @@
       .text-glow {
         text-shadow: 0 0 8px rgba(239, 68, 68, 0.6), 0 0 12px rgba(239, 68, 68, 0.4);
       }
+
+      @keyframes icon-pulse-glow {
+        0%, 100% {
+          transform: scale(1);
+          filter: drop-shadow(0 0 2px rgba(229, 231, 235, 0.2));
+        }
+        50% {
+          transform: scale(1.05);
+          filter: drop-shadow(0 0 6px rgba(229, 231, 235, 0.5));
+        }
+      }
+      .social-icon-animation {
+        animation: icon-pulse-glow 4s ease-in-out infinite;
+      }
     </style>
   <script type="importmap">
 {

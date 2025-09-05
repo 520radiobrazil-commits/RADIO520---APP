@@ -56,19 +56,19 @@ const App: React.FC = () => {
         </main>
         <footer className="text-center p-3 sm:p-4 lg:p-6 text-gray-400">
           <div className="flex justify-center items-center space-x-4 sm:space-x-6 lg:space-x-8 mb-4">
-              <a href="https://instagram.com/radio520" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-gray-400 hover:text-white transition-colors duration-200">
+              <a href="https://instagram.com/radio520" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-gray-400 hover:text-white transition-all duration-300 transform hover:scale-110 social-icon-animation">
                   <InstagramIcon className="w-6 h-6" />
               </a>
-              <a href="https://facebook.com/radio520" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="text-gray-400 hover:text-white transition-colors duration-200">
+              <a href="https://facebook.com/radio520" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="text-gray-400 hover:text-white transition-all duration-300 transform hover:scale-110 social-icon-animation" style={{ animationDelay: '0.3s' }}>
                   <FacebookIcon className="w-6 h-6" />
               </a>
-              <a href="https://x.com/radio520" target="_blank" rel="noopener noreferrer" aria-label="Twitter X" className="text-gray-400 hover:text-white transition-colors duration-200">
+              <a href="https://x.com/radio520" target="_blank" rel="noopener noreferrer" aria-label="Twitter X" className="text-gray-400 hover:text-white transition-all duration-300 transform hover:scale-110 social-icon-animation" style={{ animationDelay: '0.6s' }}>
                   <TwitterIcon className="w-6 h-6" />
               </a>
-              <a href="https://tiktok.com/@radio520" target="_blank" rel="noopener noreferrer" aria-label="TikTok" className="text-gray-400 hover:text-white transition-colors duration-200">
+              <a href="https://www.tiktok.com/@radio520oficial" target="_blank" rel="noopener noreferrer" aria-label="TikTok" className="text-gray-400 hover:text-white transition-all duration-300 transform hover:scale-110 social-icon-animation" style={{ animationDelay: '0.9s' }}>
                   <TikTokIcon className="w-6 h-6" />
               </a>
-              <a href="https://www.kwai.com/@radio520" target="_blank" rel="noopener noreferrer" aria-label="Kwai" className="text-gray-400 hover:text-white transition-colors duration-200">
+              <a href="https://www.kwai.com/@radio520" target="_blank" rel="noopener noreferrer" aria-label="Kwai" className="text-gray-400 hover:text-white transition-all duration-300 transform hover:scale-110 social-icon-animation" style={{ animationDelay: '1.2s' }}>
                   <KwaiIcon className="w-6 h-6" />
               </a>
           </div>
