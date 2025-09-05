@@ -27,7 +27,7 @@ const App: React.FC = () => {
         <Header />
         <NewsTicker />
         <main className="flex-grow flex flex-col items-center justify-center p-2 sm:p-4 lg:p-8 space-y-4 md:space-y-6">
-          <div className="w-full max-w-3xl lg:max-w-4xl xl:max-w-5xl bg-black rounded-xl shadow-2xl overflow-hidden aspect-video">
+          <div className="w-full max-w-xl lg:max-w-2xl xl:max-w-3xl bg-black rounded-xl shadow-2xl overflow-hidden aspect-video">
             {playerMode === PlayerMode.VIDEO ? <VideoPlayer /> : <AudioPlayer />}
           </div>
           

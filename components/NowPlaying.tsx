@@ -356,7 +356,7 @@ const NowPlaying: React.FC = () => {
     const isOrasomReminderSet = activeReminders.has('ORASOM 520');
 
     return (
-        <div className="text-center my-2 p-4 bg-black bg-opacity-30 rounded-lg w-full max-w-2xl lg:max-w-3xl xl:max-w-4xl mx-auto shadow-lg transition-all duration-300">
+        <div className="text-center my-2 p-4 bg-black bg-opacity-30 rounded-lg w-full max-w-xl lg:max-w-2xl xl:max-w-3xl mx-auto shadow-lg transition-all duration-300">
             <div className="flex justify-around items-start">
                 <div className="w-1/2 pr-3">
                     <p className="text-xs md:text-sm text-gray-400 uppercase tracking-wider">Você está ouvindo</p>
