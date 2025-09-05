@@ -5,6 +5,7 @@ import ScheduleIcon from './icons/ScheduleIcon';
 import ScheduleDisplay from './ScheduleDisplay';
 import { Program, dailySchedules } from './scheduleData';
 import { useNotification } from '../context/NotificationContext';
+import ShareButton from './ShareButton';
 
 const timeToMinutes = (time: string): number => {
     const [hours, minutes] = time.split(':').map(Number);
@@ -370,10 +371,13 @@ const NowPlaying: React.FC = () => {
                             aria-label={`Progresso do programa: ${programInfo.current.name}`}
                         ></div>
                     </div>
-                    <ScrollableText 
-                        text={programInfo.current.name}
-                        className="text-lg md:text-xl font-bold text-red-500 animate-pulse"
-                    />
+                     <div className="flex items-center justify-center space-x-2">
+                        <ScrollableText 
+                            text={programInfo.current.name}
+                            className="text-lg md:text-xl font-bold text-red-500 animate-pulse"
+                        />
+                        <ShareButton programName={programInfo.current.name} />
+                    </div>
                 </div>
                 
                 <div className="border-l border-gray-600 h-12 self-center"></div>
