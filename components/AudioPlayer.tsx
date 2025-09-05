@@ -81,6 +81,12 @@ const AudioPlayer: React.FC = () => {
 
 
   const togglePlayPause = () => {
+    if (!audioRef.current?.src) {
+        if (audioRef.current) {
+            audioRef.current.src = AUDIO_STREAM_URL;
+            audioRef.current.load();
+        }
+    }
     if (!isPlaying) {
       setIsLoading(true);
     }
@@ -121,40 +127,44 @@ const AudioPlayer: React.FC = () => {
         {/* Dark overlay for readability */}
         <div className="absolute inset-0 bg-black bg-opacity-60 z-10"></div>
         
-        {/* Loading Spinner */}
-        {isLoading && <LoadingSpinner />}
+        {/* Loading Overlay */}
+        <div className={`absolute inset-0 z-30 transition-opacity duration-500 ease-in-out ${isLoading ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+            <LoadingSpinner />
+        </div>
         
-        {/* Spinning Disc */}
-        <div 
-          className="relative z-20 w-40 h-40 sm:w-48 sm:h-48 rounded-full bg-black/30 backdrop-blur-sm p-2 shadow-2xl border-2 border-white/20 flex items-center justify-center spin-slow"
-          style={{ animationPlayState: isPlaying ? 'running' : 'paused' }}
-        >
-          <div 
-            className="w-full h-full rounded-full bg-contain bg-center bg-no-repeat"
-            style={{ 
-              backgroundImage: `url(${LOGO_URL})`
-            }}
-          >
-          </div>
-        </div>
+        {/* Player UI Container */}
+        <div className={`absolute inset-0 z-20 transition-opacity duration-500 ease-in-out ${!isLoading ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+            <div className="w-full h-full flex items-center justify-center">
+              <div 
+                className="relative w-40 h-40 sm:w-48 sm:h-48 rounded-full bg-black/30 backdrop-blur-sm p-2 shadow-2xl border-2 border-white/20 flex items-center justify-center spin-slow"
+                style={{ animationPlayState: isPlaying ? 'running' : 'paused' }}
+              >
+                <div 
+                  className="w-full h-full rounded-full bg-contain bg-center bg-no-repeat"
+                  style={{ 
+                    backgroundImage: `url(${LOGO_URL})`
+                  }}
+                >
+                </div>
+              </div>
+            </div>
 
-        {/* Live Indicator */}
-        <div className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 z-30 flex items-center space-x-2 px-3 py-1.5 bg-gray-900 rounded-full shadow-lg">
-            <span className="relative flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-            </span>
-            <p className="text-red-400 font-bold text-xs sm:text-sm uppercase tracking-widest text-glow">Ao Vivo</p>
-        </div>
+            <div className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 z-30 flex items-center space-x-2 px-3 py-1.5 bg-gray-900 rounded-full shadow-lg">
+                <span className="relative flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                </span>
+                <p className="text-red-400 font-bold text-xs sm:text-sm uppercase tracking-widest text-glow">Ao Vivo</p>
+            </div>
 
-        {/* Play/Pause Button */}
-        <button
-            onClick={togglePlayPause}
-            className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 z-30 w-14 h-14 rounded-full bg-red-600/50 backdrop-blur-sm text-white flex items-center justify-center shadow-lg transform transition-all duration-300 hover:scale-110 hover:bg-red-500/70 focus:outline-none focus:ring-4 focus:ring-red-500/50"
-            aria-label={isPlaying ? 'Pausar' : 'Tocar'}
-        >
-            {isPlaying ? <PauseIcon className="w-6 h-6" /> : <PlayIcon className="w-6 h-6" />}
-        </button>
+            <button
+                onClick={togglePlayPause}
+                className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 z-30 w-14 h-14 rounded-full bg-red-600/50 backdrop-blur-sm text-white flex items-center justify-center shadow-lg transform transition-all duration-300 hover:scale-110 hover:bg-red-500/70 focus:outline-none focus:ring-4 focus:ring-red-500/50"
+                aria-label={isPlaying ? 'Pausar' : 'Tocar'}
+            >
+                {isPlaying ? <PauseIcon className="w-6 h-6" /> : <PlayIcon className="w-6 h-6" />}
+            </button>
+        </div>
         
         <audio 
             ref={audioRef} 
