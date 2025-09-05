@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import BellIcon from './icons/BellIcon';
 import ScheduleIcon from './icons/ScheduleIcon';
@@ -405,14 +406,14 @@ const NowPlaying: React.FC = () => {
                 </div>
             </div>
 
-            <div className="mt-3 pt-3 border-t border-gray-700 flex flex-wrap justify-center items-center gap-4 md:gap-12 px-2">
+            <div className="mt-3 pt-3 border-t border-gray-700 flex flex-col md:flex-row justify-around items-center gap-4 md:gap-8 px-2">
                 {/* Left Part: Image and Title */}
                 <div className="flex items-center gap-4 text-left">
-                    <img src={ORASOM_ICON_URL} alt="ORASOM 520" className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 rounded-full border-2 border-red-500 shadow-lg" />
+                    <img src={ORASOM_ICON_URL} alt="ORASOM 520" className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full border-2 border-red-500 shadow-lg" />
                     <div>
-                        <p className="text-sm text-gray-400">Contagem regressiva para</p>
+                        <p className="text-sm font-bold text-red-500 uppercase tracking-widest">VEM AÍ</p>
                         <div className="flex items-center gap-2">
-                             <p className="text-xl md:text-2xl lg:text-3xl font-bold text-white">ORASOM 520</p>
+                             <p className="text-lg md:text-xl lg:text-2xl font-bold text-white">ORASOM 520</p>
                              <button 
                                  onClick={handleOrasomReminderClick}
                                  className={`p-1 rounded-full hover:bg-gray-700 transition-colors duration-200 ${
@@ -433,32 +434,32 @@ const NowPlaying: React.FC = () => {
                 <div className="flex justify-center items-start space-x-1 md:space-x-2">
                     {/* Hours */}
                     <div className="flex flex-col items-center">
-                        <div className="bg-black/25 rounded-lg p-2 md:p-3 lg:p-4 w-14 md:w-16 lg:w-20 text-center shadow-inner">
-                            <span className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-mono font-bold text-red-500 text-glow">
+                        <div className="bg-black/25 rounded-lg p-2 md:p-3 w-14 md:w-16 text-center shadow-inner">
+                            <span className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-mono font-bold text-red-500 text-glow">
                                 {hours || '00'}
                             </span>
                         </div>
                         <span className="text-[9px] md:text-[11px] text-gray-500 mt-1 uppercase tracking-widest">Horas</span>
                     </div>
                     
-                    <span className="text-2xl md:text-3xl lg:text-4xl font-mono text-red-500 pt-1.5 md:pt-2.5 lg:pt-2 text-glow">:</span>
+                    <span className="text-xl md:text-2xl lg:text-3xl font-mono text-red-500 pt-1 md:pt-1.5 text-glow">:</span>
                     
                     {/* Minutes */}
                     <div className="flex flex-col items-center">
-                        <div className="bg-black/25 rounded-lg p-2 md:p-3 lg:p-4 w-14 md:w-16 lg:w-20 text-center shadow-inner">
-                            <span className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-mono font-bold text-red-500 text-glow">
+                        <div className="bg-black/25 rounded-lg p-2 md:p-3 w-14 md:w-16 text-center shadow-inner">
+                            <span className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-mono font-bold text-red-500 text-glow">
                                 {minutes || '00'}
                             </span>
                         </div>
                         <span className="text-[9px] md:text-[11px] text-gray-500 mt-1 uppercase tracking-widest">Min</span>
                     </div>
                     
-                    <span className="text-2xl md:text-3xl lg:text-4xl font-mono text-red-500 pt-1.5 md:pt-2.5 lg:pt-2 text-glow">:</span>
+                    <span className="text-xl md:text-2xl lg:text-3xl font-mono text-red-500 pt-1 md:pt-1.5 text-glow">:</span>
 
                     {/* Seconds */}
                     <div className="flex flex-col items-center">
-                        <div className="bg-black/25 rounded-lg p-2 md:p-3 lg:p-4 w-14 md:w-16 lg:w-20 text-center shadow-inner">
-                            <span className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-mono font-bold text-red-500 text-glow">
+                        <div className="bg-black/25 rounded-lg p-2 md:p-3 w-14 md:w-16 text-center shadow-inner">
+                            <span className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-mono font-bold text-red-500 text-glow">
                                 {seconds || '00'}
                             </span>
                         </div>

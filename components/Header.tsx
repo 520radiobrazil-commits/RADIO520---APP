@@ -9,7 +9,7 @@ const Header: React.FC = () => {
       <img src={LOGO_URL} alt="Rádio 520 Logo" className="h-14 sm:h-16 md:h-20 lg:h-24 w-auto" />
       <div className="text-left">
         <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-wider text-red-500">
-          RÁDIO 520
+        RÁDIO 520
         </h1>
         <p className="text-sm text-gray-300">a sua playlist toca aqui!</p>
       </div>
