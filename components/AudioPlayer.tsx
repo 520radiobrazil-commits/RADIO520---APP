@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import PlayIcon from './icons/PlayIcon';
 import PauseIcon from './icons/PauseIcon';
 import LoadingSpinner from './LoadingSpinner';
-import AudioVisualizer from './AudioVisualizer';
+import SoundWave from './SoundWave';
 
 const AUDIO_STREAM_URL = "https://servidor40.brlogic.com:7054/live";
 
@@ -79,7 +79,7 @@ const AudioPlayer: React.FC = () => {
     >
         {isLoading && <LoadingSpinner />}
         <div className="absolute inset-0 z-0 flex items-center justify-center overflow-hidden opacity-80">
-             <AudioVisualizer analyser={analyser} />
+             <SoundWave analyser={analyser} />
         </div>
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(13,2,24,0.1)_0%,rgba(13,2,24,0.8)_80%,#0d0218_100%)] z-1"></div>
         <div className={`relative z-10 flex flex-col items-center justify-center text-center w-full transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>

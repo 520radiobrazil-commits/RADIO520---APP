@@ -29,12 +29,34 @@
           radial-gradient(ellipse 80% 60% at center, hsla(330, 75%, 30%, 0.4) 0px, transparent 55%),
           radial-gradient(ellipse 60% 60% at center, hsla(210, 70%, 35%, 0.3) 0px, transparent 55%);
         background-repeat: no-repeat;
-        background-size: 150% 150%, 120% 120%, 180% 180%;
+        /* Larger sizes for a more subtle, slower-moving background effect */
+        background-size: 250% 250%, 200% 200%, 300% 300%;
         
-        /* Two separate animations for movement and a subtle pulse */
+        /* Two separate animations for movement and a subtle pulse. Longer durations for smoother performance. */
+        -webkit-animation: 
+          moveGradients 60s ease-in-out infinite,
+          pulseGlow 12s ease-in-out infinite;
         animation: 
-          moveGradients 45s ease-in-out infinite,
-          pulseGlow 7s ease-in-out infinite;
+          moveGradients 60s ease-in-out infinite,
+          pulseGlow 12s ease-in-out infinite;
+      }
+
+      @-webkit-keyframes moveGradients {
+        0% {
+          background-position: -30% 0%, 110% 20%, 20% 130%;
+        }
+        25% {
+          background-position: 20% 60%, 80% 0%, 50% 100%;
+        }
+        50% {
+          background-position: 60% 110%, 10% 20%, 120% 70%;
+        }
+        75% {
+          background-position: 100% 50%, 0% 80%, -20% 20%;
+        }
+        100% {
+          background-position: -30% 0%, 110% 20%, 20% 130%;
+        }
       }
 
       @keyframes moveGradients {
@@ -55,6 +77,15 @@
         }
       }
 
+      @-webkit-keyframes pulseGlow {
+        0%, 100% {
+          opacity: 0.9;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+
       @keyframes pulseGlow {
         0%, 100% {
           opacity: 0.9;
@@ -72,9 +103,17 @@
 
       .marquee-content {
         display: inline-block;
+        -webkit-animation-name: marquee-scroll;
         animation-name: marquee-scroll;
+        -webkit-animation-timing-function: linear;
         animation-timing-function: linear;
+        -webkit-animation-iteration-count: infinite;
         animation-iteration-count: infinite;
+      }
+
+      @-webkit-keyframes marquee-scroll {
+        from { transform: translateX(0%); }
+        to   { transform: translateX(-50%); }
       }
 
       @keyframes marquee-scroll {
@@ -86,6 +125,17 @@
         text-shadow: 0 0 8px rgba(239, 68, 68, 0.6), 0 0 12px rgba(239, 68, 68, 0.4);
       }
 
+      @-webkit-keyframes icon-pulse-glow {
+        0%, 100% {
+          transform: scale(1);
+          filter: drop-shadow(0 0 2px rgba(229, 231, 235, 0.2));
+        }
+        50% {
+          transform: scale(1.05);
+          filter: drop-shadow(0 0 6px rgba(229, 231, 235, 0.5));
+        }
+      }
+      
       @keyframes icon-pulse-glow {
         0%, 100% {
           transform: scale(1);
@@ -96,7 +146,9 @@
           filter: drop-shadow(0 0 6px rgba(229, 231, 235, 0.5));
         }
       }
+
       .social-icon-animation {
+        -webkit-animation: icon-pulse-glow 4s ease-in-out infinite;
         animation: icon-pulse-glow 4s ease-in-out infinite;
       }
     </style>
