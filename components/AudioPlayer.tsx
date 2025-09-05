@@ -93,12 +93,22 @@ const AudioPlayer: React.FC = () => {
   };
 
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center bg-black p-4 sm:p-8 lg:p-12 overflow-hidden">
+    <div 
+        className="relative w-full h-full flex flex-col items-center justify-center p-4 sm:p-8 lg:p-12 overflow-hidden"
+        style={{ 
+            backgroundColor: '#0d0218', 
+            backgroundImage: `
+                radial-gradient(at 20% 80%, hsla(280, 70%, 25%, 0.35) 0px, transparent 50%),
+                radial-gradient(at 80% 10%, hsla(330, 75%, 30%, 0.3) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, hsla(210, 70%, 35%, 0.25) 0px, transparent 50%)
+            `
+        }}
+    >
         {isLoading && <LoadingSpinner />}
-        <div className="absolute inset-0 z-0 flex items-center justify-center overflow-hidden filter blur-sm brightness-75">
+        <div className="absolute inset-0 z-0 flex items-center justify-center overflow-hidden opacity-80">
              <AudioVisualizer analyser={analyser} />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/70 to-purple-900/60 z-1"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(13,2,24,0.1)_0%,rgba(13,2,24,0.8)_80%,#0d0218_100%)] z-1"></div>
         <div className={`relative z-10 flex flex-col items-center justify-center text-center w-full transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
             
             <div className="flex items-center space-x-2 mb-8">
