@@ -1,6 +1,7 @@
 import React from 'react';
 
 const tickerItems = [
+  "BRASIL VENCE CHILE NO MARACANÃ POR 3X0 E AGORA ENFRENTA A BOLÍVIA NA ALTITUDE",
   "DOMINGO ESTRÉIA 'ORASOM 520', O PROGRAMA QUE VAI TE RECONECTAR E REENERGIZAR PARA A SEMANA QUE COMEÇA! DOMINGO 05:00 AM",
   "Fique por dentro das últimas notícias em radio520.com.br",
   "Peça sua música pelo nosso WhatsApp!",
