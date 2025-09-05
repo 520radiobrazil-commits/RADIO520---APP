@@ -9,11 +9,59 @@
     <style>
       body {
         background-color: #0d0218; /* Dark purple fallback */
+        position: relative; /* Needed for z-index on pseudo-element */
+        overflow-x: hidden; /* Prevent horizontal scrollbars from large gradients */
+      }
+
+      /* Animated background is on a pseudo-element for performance */
+      body::before {
+        content: '';
+        position: fixed; /* Use fixed to cover viewport and not scroll with content */
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        
+        background-color: #0d0218;
         background-image: 
-          radial-gradient(at 10% 20%, hsla(270, 70%, 25%, 0.4) 0px, transparent 50%),
-          radial-gradient(at 85% 30%, hsla(330, 75%, 30%, 0.4) 0px, transparent 50%),
-          radial-gradient(at 25% 85%, hsla(210, 70%, 35%, 0.3) 0px, transparent 50%);
-        background-attachment: fixed;
+          radial-gradient(ellipse 60% 80% at center, hsla(270, 70%, 25%, 0.4) 0px, transparent 55%),
+          radial-gradient(ellipse 80% 60% at center, hsla(330, 75%, 30%, 0.4) 0px, transparent 55%),
+          radial-gradient(ellipse 60% 60% at center, hsla(210, 70%, 35%, 0.3) 0px, transparent 55%);
+        background-repeat: no-repeat;
+        background-size: 150% 150%, 120% 120%, 180% 180%;
+        
+        /* Two separate animations for movement and a subtle pulse */
+        animation: 
+          moveGradients 45s ease-in-out infinite,
+          pulseGlow 7s ease-in-out infinite;
+      }
+
+      @keyframes moveGradients {
+        0% {
+          background-position: -30% 0%, 110% 20%, 20% 130%;
+        }
+        25% {
+          background-position: 20% 60%, 80% 0%, 50% 100%;
+        }
+        50% {
+          background-position: 60% 110%, 10% 20%, 120% 70%;
+        }
+        75% {
+          background-position: 100% 50%, 0% 80%, -20% 20%;
+        }
+        100% {
+          background-position: -30% 0%, 110% 20%, 20% 130%;
+        }
+      }
+
+      @keyframes pulseGlow {
+        0%, 100% {
+          opacity: 0.9;
+        }
+        50% {
+          opacity: 1;
+        }
       }
 
       .marquee-container {

@@ -1,3 +1,4 @@
+
 export interface Program {
     start: string;
     end: string;
@@ -28,7 +29,7 @@ const scheduleMonday: Program[] = [
 
 const scheduleTuesday: Program[] = [
     { start: '00:00', end: '00:10', name: 'REPÓRTER520' },
-    { start: '00:11', end: '02:00', name: 'LOVE HITS' },
+    { start: '00:10', end: '02:00', name: 'LOVE HITS' },
     { start: '02:00', end: '05:50', name: 'INSÔNIA' },
     { start: '05:50', end: '06:00', name: 'RÁDIO520 VIVA MELHOR' },
     { start: '06:00', end: '07:50', name: 'GIRO520' },
@@ -77,9 +78,9 @@ const scheduleThursday: Program[] = [
     { start: '05:50', end: '06:00', name: 'RÁDIO520 VIVA MELHOR' },
     { start: '06:00', end: '07:50', name: 'GIRO520' },
     { start: '07:50', end: '08:00', name: 'MÚSICA DO DIA' },
-    { start: '08:10', end: '10:00', name: 'CAFEÍNA' },
+    { start: '08:00', end: '10:00', name: 'CAFEÍNA' },
     { start: '10:00', end: '10:10', name: 'REPÓRTER520' },
-    { start: '10:20', end: '13:00', name: 'POP SHOW' },
+    { start: '10:10', end: '13:00', name: 'POP SHOW' },
     { start: '13:00', end: '13:10', name: 'MÚSICA DO DIA' },
     { start: '13:10', end: '16:50', name: 'MARATONA520' },
     { start: '16:50', end: '17:00', name: 'RESENHA520' },
@@ -87,7 +88,7 @@ const scheduleThursday: Program[] = [
     { start: '18:00', end: '18:05', name: 'HORA DA AVE MARIA' },
     { start: '18:05', end: '20:00', name: 'MIX520 - AS MAIS TOCADAS PELO MUNDO' },
     { start: '20:00', end: '20:10', name: 'REPÓRTER520' },
-    { start: '20:15', end: '22:00', name: 'RÁDIO520 - TOP20' },
+    { start: '20:10', end: '22:00', name: 'RÁDIO520 - TOP20' },
     { start: '22:00', end: '22:10', name: 'RÁDIO520 VIVA MELHOR' },
     { start: '22:10', end: '24:00', name: 'CLASSIC HITS' },
 ];
@@ -96,7 +97,7 @@ const scheduleFriday: Program[] = [
     { start: '00:00', end: '00:10', name: 'REPÓRTER520' },
     { start: '00:10', end: '02:00', name: 'LOVE HITS' },
     { start: '02:00', end: '05:45', name: 'INSÔNIA' },
-    { start: '05:50', end: '06:00', name: 'CARNA520' },
+    { start: '05:45', end: '06:00', name: 'CARNA520' },
     { start: '06:00', end: '07:50', name: 'GIRO520' },
     { start: '07:50', end: '08:00', name: 'MÚSICA DO DIA' },
     { start: '08:00', end: '10:00', name: 'CAFEÍNA' },
@@ -121,11 +122,11 @@ const scheduleSaturday: Program[] = [
     { start: '10:10', end: '10:20', name: 'REPÓRTER520' },
     { start: '10:20', end: '11:50', name: 'RÁDIO520 - TOP20' },
     { start: '11:50', end: '12:00', name: 'RÁDIO520 VIVA MELHOR' },
-    { start: '12:05', end: '14:05', name: 'ZIRIGUIDUM' },
+    { start: '12:00', end: '14:05', name: 'ZIRIGUIDUM' },
     { start: '14:05', end: '14:15', name: 'MÚSICA DO DIA' },
     { start: '14:15', end: '18:00', name: 'MARATONA520' },
     { start: '18:00', end: '18:05', name: 'HORA DA AVE MARIA' },
-    { start: '18:10', end: '19:50', name: 'BR520' },
+    { start: '18:05', end: '19:50', name: 'BR520' },
     { start: '19:50', end: '20:00', name: 'RÁDIO520 VIVA MELHOR' },
     { start: '20:00', end: '22:00', name: 'RÁDIO520 - DANCE CLUB' },
     { start: '22:00', end: '24:00', name: 'SUPERSEQUÊNCIA' },

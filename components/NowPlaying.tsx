@@ -11,49 +11,62 @@ const timeToMinutes = (time: string): number => {
     return hours * 60 + minutes;
 };
 
-const getBrasiliaDate = (): Date => {
+const getBrasiliaTimeInfo = (): { dayOfWeek: number, hours: number, minutes: number, seconds: number, year: number, month: number, day: number } => {
     const now = new Date();
-    // Use Intl.DateTimeFormat to get parts of the date in the correct timezone
+    const timeZone = 'America/Sao_Paulo';
+    
     const options: Intl.DateTimeFormatOptions = {
-      year: 'numeric', month: '2-digit', day: '2-digit',
-      hour: '2-digit', minute: '2-digit', second: '2-digit',
-      hour12: false, timeZone: 'America/Sao_Paulo'
+        timeZone,
+        weekday: 'short', // e.g., 'Sun'
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+        hourCycle: 'h23',
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
     };
-    const parts = new Intl.DateTimeFormat('en-US', options).formatToParts(now);
-    const dateParts = {
-      year: '', month: '', day: '', hour: '', minute: '', second: ''
+    
+    const parts = new Intl.DateTimeFormat('en-US', options).formatToParts(now)
+        .reduce((acc, part) => {
+            if (part.type !== 'literal') acc[part.type] = part.value;
+            return acc;
+        }, {} as Record<string, string>);
+
+    const dayOfWeekMap: { [key: string]: number } = { 'Sun': 0, 'Mon': 1, 'Tue': 2, 'Wed': 3, 'Thu': 4, 'Fri': 5, 'Sat': 6 };
+
+    return {
+        dayOfWeek: dayOfWeekMap[parts.weekday] ?? 0,
+        hours: parseInt(parts.hour, 10),
+        minutes: parseInt(parts.minute, 10),
+        seconds: parseInt(parts.second, 10),
+        year: parseInt(parts.year, 10),
+        month: parseInt(parts.month, 10), // 1-indexed
+        day: parseInt(parts.day, 10),
     };
-    for (const part of parts) {
-      if (part.type in dateParts) {
-        dateParts[part.type as keyof typeof dateParts] = part.value;
-      }
-    }
-    // Create a new Date object from the parts
-    return new Date(`${dateParts.year}-${dateParts.month}-${dateParts.day}T${dateParts.hour}:${dateParts.minute}:${dateParts.second}`);
 };
 
 const getOrasomCountdown = (): string => {
-    const brasiliaNow = getBrasiliaDate();
+    const { dayOfWeek, hours, minutes, seconds, year, month, day } = getBrasiliaTimeInfo();
     const targetDay = 0; // Sunday
     const targetHour = 5;
     const targetMinute = 0;
 
-    let targetDate = new Date(brasiliaNow);
+    // Use Date.UTC to get timestamps for specific wall times, making them timezone-independent
+    const nowInBrasiliaAsTimestamp = Date.UTC(year, month - 1, day, hours, minutes, seconds);
 
-    // Calculate days until next Sunday
-    const currentDay = brasiliaNow.getDay();
-    let daysUntilTarget = (targetDay - currentDay + 7) % 7;
+    let targetDate = new Date(nowInBrasiliaAsTimestamp);
     
-    // If it's Sunday today, and the time is 5 AM or later, aim for next week's Sunday
-    if (daysUntilTarget === 0 && brasiliaNow.getHours() >= targetHour) {
+    let daysUntilTarget = (targetDay - dayOfWeek + 7) % 7;
+    if (daysUntilTarget === 0 && (hours > targetHour || (hours === targetHour && minutes > targetMinute))) {
         daysUntilTarget = 7;
     }
+
+    targetDate.setUTCDate(targetDate.getUTCDate() + daysUntilTarget);
+    targetDate.setUTCHours(targetHour, targetMinute, 0, 0);
+
+    const remainingMilliseconds = targetDate.getTime() - nowInBrasiliaAsTimestamp;
     
-    targetDate.setDate(brasiliaNow.getDate() + daysUntilTarget);
-    targetDate.setHours(targetHour, targetMinute, 0, 0);
-
-    const remainingMilliseconds = targetDate.getTime() - brasiliaNow.getTime();
-
     if (remainingMilliseconds <= 0) {
         return '00:00:00';
     }
@@ -67,13 +80,9 @@ const getOrasomCountdown = (): string => {
 };
 
 const getProgramScheduleInfo = () => {
-    const brasiliaNow = getBrasiliaDate();
-    const dayOfWeek = brasiliaNow.getDay(); // 0 for Sunday, 6 for Saturday
-    const schedule = dailySchedules[dayOfWeek];
+    const { dayOfWeek, hours, minutes, seconds } = getBrasiliaTimeInfo();
+    const schedule = dailySchedules[dayOfWeek] || [];
 
-    const hours = brasiliaNow.getHours();
-    const minutes = brasiliaNow.getMinutes();
-    const seconds = brasiliaNow.getSeconds();
     const currentTimeInSeconds = hours * 3600 + minutes * 60 + seconds;
 
     let currentProgram: Program = { name: 'Música na 520', start: '', end: '', };
@@ -136,17 +145,18 @@ const formatDateForICS = (date: Date): string => {
 };
 
 const createICSFile = (program: Program, isNextDay: boolean) => {
-    const brasiliaNow = getBrasiliaDate();
-    const eventDate = new Date(brasiliaNow);
+    const { year, month, day } = getBrasiliaTimeInfo();
+    
+    const eventDate = new Date(Date.UTC(year, month - 1, day));
     if (isNextDay) {
-        eventDate.setDate(eventDate.getDate() + 1);
+        eventDate.setUTCDate(eventDate.getUTCDate() + 1);
     }
 
     const [startHours, startMinutes] = program.start.split(':').map(Number);
     const [endHours, endMinutes] = program.end === '24:00' ? [23, 59] : program.end.split(':').map(Number);
 
-    const startDate = new Date(Date.UTC(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate(), startHours, startMinutes));
-    const endDate = new Date(Date.UTC(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate(), endHours, endMinutes));
+    const startDate = new Date(Date.UTC(eventDate.getUTCFullYear(), eventDate.getUTCMonth(), eventDate.getUTCDate(), startHours, startMinutes));
+    const endDate = new Date(Date.UTC(eventDate.getUTCFullYear(), eventDate.getUTCMonth(), eventDate.getUTCDate(), endHours, endMinutes));
     
     const dtStamp = formatDateForICS(new Date());
     const dtStart = formatDateForICS(startDate);
@@ -184,27 +194,25 @@ const createICSFile = (program: Program, isNextDay: boolean) => {
 };
 
 const createOrasomICSFile = () => {
-    const brasiliaNow = getBrasiliaDate();
+    const { dayOfWeek, hours, year, month, day } = getBrasiliaTimeInfo();
     const targetDay = 0; // Sunday
     const targetHour = 5;
 
-    let targetDate = new Date(brasiliaNow);
+    let targetDate = new Date(Date.UTC(year, month - 1, day));
 
-    const currentDay = brasiliaNow.getDay();
-    let daysUntilTarget = (targetDay - currentDay + 7) % 7;
-    
-    if (daysUntilTarget === 0 && brasiliaNow.getHours() >= targetHour) {
+    let daysUntilTarget = (targetDay - dayOfWeek + 7) % 7;
+    if (daysUntilTarget === 0 && hours >= targetHour) {
         daysUntilTarget = 7;
     }
     
-    targetDate.setDate(brasiliaNow.getDate() + daysUntilTarget);
+    targetDate.setUTCDate(targetDate.getUTCDate() + daysUntilTarget);
 
     const program = { name: 'ORASOM 520', start: '05:00', end: '07:00' };
     const [startHours, startMinutes] = program.start.split(':').map(Number);
     const [endHours, endMinutes] = program.end.split(':').map(Number);
 
-    const startDate = new Date(Date.UTC(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate(), startHours, startMinutes));
-    const endDate = new Date(Date.UTC(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate(), endHours, endMinutes));
+    const startDate = new Date(Date.UTC(targetDate.getUTCFullYear(), targetDate.getUTCMonth(), targetDate.getUTCDate(), startHours, startMinutes));
+    const endDate = new Date(Date.UTC(targetDate.getUTCFullYear(), targetDate.getUTCMonth(), targetDate.getUTCDate(), endHours, endMinutes));
 
     const dtStamp = formatDateForICS(new Date());
     const dtStart = formatDateForICS(startDate);
@@ -276,7 +284,7 @@ const NowPlaying: React.FC = () => {
         next: { name: 'Carregando...' } as Program,
         countdown: '00:00:00',
         isNextDay: false,
-        schedule: dailySchedules[getBrasiliaDate().getDay()],
+        schedule: [] as Program[],
         progress: 0,
     });
     const [orasomCountdown, setOrasomCountdown] = useState('00:00:00');
