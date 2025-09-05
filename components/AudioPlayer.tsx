@@ -8,7 +8,6 @@ import LoadingSpinner from './LoadingSpinner';
 import AudioVisualizer from './AudioVisualizer';
 
 const AUDIO_STREAM_URL = "https://servidor40.brlogic.com:7054/live";
-const LOGO_URL = "https://public-rf-upload.minhawebradio.net/249695/ad/e4afe65bc29bd449a81737943a4e4091.png";
 
 const AudioPlayer: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -101,7 +100,6 @@ const AudioPlayer: React.FC = () => {
         </div>
         <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/70 to-purple-900/60 z-1"></div>
         <div className={`relative z-10 flex flex-col items-center justify-center text-center w-full transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
-            <img src={LOGO_URL} alt="Rádio 520" className="h-20 sm:h-24 md:h-28 lg:h-32 w-auto mb-6" />
             
             <div className="flex items-center space-x-2 mb-8">
                 <span className="relative flex h-3 w-3">
