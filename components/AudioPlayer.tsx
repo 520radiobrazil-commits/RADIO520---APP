@@ -1,10 +1,5 @@
-
-
-
-
-
-
-import React, 'useState', useRef, useEffect } from 'react';
+// FIX: Corrected a typo in the import statement from `useState'` to `useState`. This resolves multiple 'Cannot find name' errors for React hooks.
+import React, { useState, useRef, useEffect } from 'react';
 import PlayIcon from './icons/PlayIcon';
 import PauseIcon from './icons/PauseIcon';
 import LoadingSpinner from './LoadingSpinner';
@@ -165,28 +160,35 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ isScheduleVisible, toggleSche
         </div>
         
         <div className={`absolute inset-0 z-20 transition-opacity duration-500 ease-in-out ${!isLoading ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-            <div className="w-full h-full flex items-center justify-center pb-10 sm:pb-12 md:pb-16">
-              <div className="relative w-40 h-40 sm:w-48 sm:h-48">
-                <div
-                  className="absolute inset-0 rounded-full bg-black/30 backdrop-blur-sm p-2 shadow-2xl border-2 border-white/20 flex items-center justify-center spin-slow"
-                  style={{ animationPlayState: isPlaying ? 'running' : 'paused' }}
-                >
-                  <div
-                    className="w-full h-full rounded-full bg-contain bg-center bg-no-repeat"
-                    style={{
-                      backgroundImage: `url(${LOGO_URL})`
-                    }}
-                  >
-                  </div>
-                </div>
-
+            <div className="relative w-full h-full flex items-center justify-center pb-10 sm:pb-12 md:pb-16">
+              {/* Button and disc container for positioning */}
+              <div className="w-full max-w-sm sm:max-w-md md:max-w-lg relative flex justify-center items-center">
+                {/* Play/Pause Button on the left, absolutely positioned */}
                 <button
                     onClick={togglePlayPause}
-                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 w-16 h-16 rounded-full bg-red-600/50 backdrop-blur-sm text-white flex items-center justify-center shadow-lg transform transition-all duration-300 hover:scale-110 hover:bg-red-500/70 focus:outline-none focus:ring-4 focus:ring-red-500/50"
+                    className="absolute left-0 z-30 w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-orange-600/50 backdrop-blur-sm text-white flex items-center justify-center shadow-lg transform transition-all duration-300 hover:scale-110 hover:bg-orange-500/70 focus:outline-none focus:ring-4 focus:ring-orange-500/50"
                     aria-label={isPlaying ? 'Pausar' : 'Tocar'}
                 >
-                    {isPlaying ? <PauseIcon className="w-8 h-8" /> : <PlayIcon className="w-8 h-8" />}
+                    {!isPlaying && (
+                        <span className="absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75 animate-ping"></span>
+                    )}
+                    <span className="relative z-10">
+                        {isPlaying ? <PauseIcon className="w-6 h-6 sm:w-8 sm:h-8" /> : <PlayIcon className="w-6 h-6 sm:w-8 sm:h-8" />}
+                    </span>
                 </button>
+
+                {/* Rotating Disc Container */}
+                <div className="relative w-48 h-48 sm:w-56 sm:h-56">
+                  <div
+                      className="absolute inset-0 rounded-full bg-black/30 backdrop-blur-sm p-2 shadow-2xl border-2 border-white/20 flex items-center justify-center spin-slow"
+                      style={{ animationPlayState: isPlaying ? 'running' : 'paused' }}
+                  >
+                      <div
+                          className="w-full h-full rounded-full bg-contain bg-center bg-no-repeat"
+                          style={{ backgroundImage: `url(${LOGO_URL})` }}
+                      ></div>
+                  </div>
+                </div>
               </div>
             </div>
 
