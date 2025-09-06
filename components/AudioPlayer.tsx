@@ -162,7 +162,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ isScheduleVisible, toggleSche
         <div className={`absolute inset-0 z-20 transition-opacity duration-500 ease-in-out ${!isLoading ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
             <div className="relative w-full h-full flex items-center justify-center p-4">
               {/* Grid layout for robust positioning */}
-              <div className="w-full max-w-xl grid grid-cols-[1fr_auto_1fr] items-center gap-4">
+              <div className="w-full max-w-xl grid grid-cols-[1fr_auto_1fr] items-center gap-4 transform -translate-y-4 sm:-translate-y-6">
 
                 {/* 1. Left Column: Play/Pause Button */}
                 <div className="flex justify-center">
