@@ -160,35 +160,43 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ isScheduleVisible, toggleSche
         </div>
         
         <div className={`absolute inset-0 z-20 transition-opacity duration-500 ease-in-out ${!isLoading ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-            <div className="relative w-full h-full flex items-center justify-center pb-10 sm:pb-12 md:pb-16">
-              {/* Button and disc container for positioning */}
-              <div className="w-full max-w-sm sm:max-w-md md:max-w-lg relative flex justify-center items-center">
-                {/* Play/Pause Button on the left, absolutely positioned */}
-                <button
+            <div className="relative w-full h-full flex items-center justify-center p-4">
+              {/* Grid layout for robust positioning */}
+              <div className="w-full max-w-xl grid grid-cols-3 items-center gap-4">
+
+                {/* 1. Left Column: Play/Pause Button */}
+                <div className="flex justify-start">
+                  <button
                     onClick={togglePlayPause}
-                    className="absolute left-0 z-30 w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-orange-600/50 backdrop-blur-sm text-white flex items-center justify-center shadow-lg transform transition-all duration-300 hover:scale-110 hover:bg-orange-500/70 focus:outline-none focus:ring-4 focus:ring-orange-500/50"
+                    className="relative z-30 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-orange-600/50 backdrop-blur-sm text-white flex items-center justify-center shadow-lg transform transition-all duration-300 hover:scale-110 hover:bg-orange-500/70 focus:outline-none focus:ring-4 focus:ring-orange-500/50"
                     aria-label={isPlaying ? 'Pausar' : 'Tocar'}
-                >
+                  >
                     {!isPlaying && (
-                        <span className="absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75 animate-ping"></span>
+                      <span className="absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75 animate-ping"></span>
                     )}
                     <span className="relative z-10">
-                        {isPlaying ? <PauseIcon className="w-6 h-6 sm:w-8 sm:h-8" /> : <PlayIcon className="w-6 h-6 sm:w-8 sm:h-8" />}
+                      {isPlaying ? <PauseIcon className="w-5 h-5 sm:w-6 sm:h-6" /> : <PlayIcon className="w-5 h-5 sm:w-6 sm:h-6" />}
                     </span>
-                </button>
+                  </button>
+                </div>
 
-                {/* Rotating Disc Container */}
-                <div className="relative w-48 h-48 sm:w-56 sm:h-56">
-                  <div
+                {/* 2. Center Column: Rotating Disc */}
+                <div className="col-start-2 col-span-1 flex justify-center">
+                  <div className="relative w-48 h-48 sm:w-56 sm:h-56">
+                    <div
                       className="absolute inset-0 rounded-full bg-black/30 backdrop-blur-sm p-2 shadow-2xl border-2 border-white/20 flex items-center justify-center spin-slow"
                       style={{ animationPlayState: isPlaying ? 'running' : 'paused' }}
-                  >
+                    >
                       <div
-                          className="w-full h-full rounded-full bg-contain bg-center bg-no-repeat"
-                          style={{ backgroundImage: `url(${LOGO_URL})` }}
+                        className="w-full h-full rounded-full bg-contain bg-center bg-no-repeat"
+                        style={{ backgroundImage: `url(${LOGO_URL})` }}
                       ></div>
+                    </div>
                   </div>
                 </div>
+
+                {/* 3. Right Column is implicitly empty, providing balance */}
+                
               </div>
             </div>
 
