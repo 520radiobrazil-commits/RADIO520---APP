@@ -1,10 +1,14 @@
 
 
+
+
+
 import React, { useState, useRef, useEffect } from 'react';
 import PlayIcon from './icons/PlayIcon';
 import PauseIcon from './icons/PauseIcon';
 import LoadingSpinner from './LoadingSpinner';
 import CloseIcon from './icons/CloseIcon';
+import LocalTime from './LocalTime';
 
 const AUDIO_STREAM_URL = "https://servidor40.brlogic.com:7054/live";
 const LOGO_URL = "https://public-rf-upload.minhawebradio.net/249695/ad/e4afe65bc29bd449a81737943a4e4091.png";
@@ -27,12 +31,38 @@ interface AudioPlayerProps {
 const AudioPlayer: React.FC<AudioPlayerProps> = ({ isScheduleVisible, toggleSchedule }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isScheduleButtonAnimatedVisible, setIsScheduleButtonAnimatedVisible] = useState(true);
   const audioRef = useRef<HTMLAudioElement>(null);
   
   const [imagePool, setImagePool] = useState<string[]>([]);
   const [targetImageIndex, setTargetImageIndex] = useState(0); 
   const [visibleImageIndex, setVisibleImageIndex] = useState(0); 
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    let visibilityTimeout: number;
+
+    const initialTimeout = setTimeout(() => {
+        setIsScheduleButtonAnimatedVisible(false);
+    }, 30000); // Fica visível por 30 segundos inicialmente
+
+    const mainInterval = setInterval(() => {
+        setIsScheduleButtonAnimatedVisible(true);
+        
+        visibilityTimeout = window.setTimeout(() => {
+            setIsScheduleButtonAnimatedVisible(false);
+        }, 30000); // Reaparece e fica visível por 30 segundos
+
+    }, 3 * 60 * 1000); // A cada 3 minutos
+
+    return () => {
+        clearTimeout(initialTimeout);
+        clearInterval(mainInterval);
+        if (visibilityTimeout) {
+            clearTimeout(visibilityTimeout);
+        }
+    };
+  }, []);
 
   useEffect(() => {
     setImagePool(backgroundImages);
@@ -51,7 +81,6 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ isScheduleVisible, toggleSche
       img.src = currentImageSrc;
       img.onload = () => {
         setLoadedImages(prev => new Set(prev).add(currentImageSrc));
-        // Only make the first image visible after it loads
         if (loadedImages.size === 0) {
             setVisibleImageIndex(targetImageIndex);
         }
@@ -115,7 +144,6 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ isScheduleVisible, toggleSche
 
   return (
     <div className="relative w-full h-full overflow-hidden bg-black flex items-center justify-center">
-        {/* Slideshow Background */}
         <div className="absolute inset-0 z-0">
             {imagePool.map((src, index) => (
                 <div
@@ -129,15 +157,12 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ isScheduleVisible, toggleSche
             ))}
         </div>
 
-        {/* Dark overlay for readability */}
         <div className="absolute inset-0 bg-black bg-opacity-60 z-10"></div>
         
-        {/* Loading Overlay */}
         <div className={`absolute inset-0 z-30 transition-opacity duration-500 ease-in-out ${isLoading ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
             <LoadingSpinner />
         </div>
         
-        {/* Player UI Container */}
         <div className={`absolute inset-0 z-20 transition-opacity duration-500 ease-in-out ${!isLoading ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
             <div className="w-full h-full flex items-center justify-center">
               <div 
@@ -155,28 +180,29 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ isScheduleVisible, toggleSche
             </div>
 
             <div className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 z-30 flex items-center bg-gray-900/80 backdrop-blur-sm rounded-full shadow-lg overflow-hidden">
-                <button
-                    onClick={toggleSchedule}
-                    className={`flex items-center space-x-2 pl-3 pr-2 py-1.5 text-xs sm:text-sm font-bold uppercase tracking-widest transition-colors duration-300 focus:outline-none ${
-                        isScheduleVisible
-                        ? 'bg-purple-600 text-white hover:bg-purple-700'
-                        : 'text-purple-400 hover:bg-gray-800 focus:bg-gray-800 text-glow-purple'
-                    }`}
-                    aria-label={isScheduleVisible ? "Fechar programação" : "Ver programação"}
-                    aria-expanded={isScheduleVisible}
-                >
-                    {isScheduleVisible ? (
-                        <CloseIcon className="w-4 h-4" />
-                    ) : (
-                        <span className="relative flex h-3 w-3">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
-                        </span>
-                    )}
-                    <span className="pr-1">{isScheduleVisible ? "Fechar" : "Programação"}</span>
-                </button>
-
-                <div className="w-px h-4 bg-gray-600 self-center"></div>
+                <div className={`flex items-center transition-all duration-700 ease-in-out ${isScheduleButtonAnimatedVisible ? 'max-w-40 opacity-100' : 'max-w-0 opacity-0'}`}>
+                    <button
+                        onClick={toggleSchedule}
+                        className={`flex items-center space-x-2 pl-3 pr-2 py-1.5 text-xs sm:text-sm font-bold uppercase tracking-widest transition-colors duration-300 focus:outline-none whitespace-nowrap ${
+                            isScheduleVisible
+                            ? 'bg-purple-600 text-white hover:bg-purple-700'
+                            : 'text-purple-400 hover:bg-gray-800 focus:bg-gray-800 text-glow-purple'
+                        }`}
+                        aria-label={isScheduleVisible ? "Fechar programação" : "Ver programação"}
+                        aria-expanded={isScheduleVisible}
+                    >
+                        {isScheduleVisible ? (
+                            <CloseIcon className="w-4 h-4" />
+                        ) : (
+                            <span className="relative flex h-3 w-3">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
+                            </span>
+                        )}
+                        <span className="pr-1">{isScheduleVisible ? "Fechar" : "Programação"}</span>
+                    </button>
+                    <div className="w-px h-4 bg-gray-600 self-center"></div>
+                </div>
 
                 <div className="flex items-center space-x-2 px-3 py-1.5 cursor-default" title="Você está ouvindo a transmissão ao vivo">
                     <span className="relative flex h-3 w-3">
@@ -185,6 +211,9 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ isScheduleVisible, toggleSche
                     </span>
                     <p className="text-red-400 font-bold text-xs sm:text-sm uppercase tracking-widest text-glow">Ao Vivo</p>
                 </div>
+                
+                <div className="w-px h-4 bg-gray-600 self-center"></div>
+                <LocalTime />
             </div>
 
 
