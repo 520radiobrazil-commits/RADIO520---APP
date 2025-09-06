@@ -1,13 +1,12 @@
 
 
+
 import React, { useState, useEffect, useRef } from 'react';
 import BellIcon from './icons/BellIcon';
-import ScheduleIcon from './icons/ScheduleIcon';
 import ScheduleDisplay from './ScheduleDisplay';
 import { Program, dailySchedules } from './scheduleData';
 import { useNotification } from '../context/NotificationContext';
 import ShareButton from './ShareButton';
-import CloseIcon from './icons/CloseIcon';
 
 const timeToMinutes = (time: string): number => {
     const [hours, minutes] = time.split(':').map(Number);
@@ -280,7 +279,11 @@ const ScrollableText: React.FC<{text: string; className: string; threshold?: num
     );
 };
 
-const NowPlaying: React.FC = () => {
+interface NowPlayingProps {
+    isScheduleVisible: boolean;
+}
+
+const NowPlaying: React.FC<NowPlayingProps> = ({ isScheduleVisible }) => {
     const { showNotification } = useNotification();
     const [programInfo, setProgramInfo] = useState({
         current: { name: 'Carregando...' } as Program,
@@ -291,7 +294,6 @@ const NowPlaying: React.FC = () => {
         progress: 0,
     });
     const [orasomCountdown, setOrasomCountdown] = useState('00:00:00');
-    const [isScheduleVisible, setIsScheduleVisible] = useState(false);
     const [activeReminders, setActiveReminders] = useState<Set<string>>(new Set());
     const prevProgramNameRef = useRef<string | null>(null);
 
@@ -358,10 +360,6 @@ const NowPlaying: React.FC = () => {
         showNotification('Lembrete para "ORASOM 520" criado!');
     };
 
-    const toggleSchedule = () => {
-        setIsScheduleVisible(prev => !prev);
-    };
-
     const ORASOM_ICON_URL = "https://public-rf-upload.minhawebradio.net/249695/ad/dbdeb191c4ddc5877d49a2a0f4066233.jpg";
     const [hours, minutes, seconds] = orasomCountdown.split(':');
 
@@ -369,7 +367,7 @@ const NowPlaying: React.FC = () => {
     const isOrasomReminderSet = activeReminders.has('ORASOM 520');
 
     return (
-        <div className="text-center my-2 p-4 bg-black bg-opacity-30 rounded-lg w-full max-w-xl lg:max-w-2xl xl:max-w-3xl mx-auto shadow-lg transition-all duration-300">
+        <div className="relative text-center my-2 p-4 bg-black bg-opacity-30 rounded-lg w-full max-w-xl lg:max-w-2xl xl:max-w-3xl mx-auto shadow-lg transition-all duration-300">
             <div className="flex justify-around items-start">
                 <div className="w-1/2 pr-3">
                     <p className="text-xs md:text-sm text-gray-400 uppercase tracking-wider">Você está ouvindo</p>
@@ -460,24 +458,10 @@ const NowPlaying: React.FC = () => {
                             <BellIcon className="w-4 h-4" />
                             <span>{isOrasomReminderSet ? "Lembrete Criado" : "Criar Lembrete"}</span>
                         </button>
-                        <button
-                            onClick={toggleSchedule}
-                            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-300 ${
-                                isScheduleVisible
-                                ? 'bg-red-800 text-white hover:bg-red-700'
-                                : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white'
-                            }`}
-                            title={isScheduleVisible ? "Fechar programação" : "Ver programação completa"}
-                            aria-label={isScheduleVisible ? "Fechar programação" : "Ver programação completa"}
-                            aria-expanded={isScheduleVisible}
-                        >
-                            {isScheduleVisible ? <CloseIcon className="w-4 h-4" /> : <ScheduleIcon className="w-4 h-4" />}
-                            <span>{isScheduleVisible ? 'Fechar' : 'Programação'}</span>
-                        </button>
                     </div>
                 </div>
             </div>
-            {isScheduleVisible && <ScheduleDisplay schedule={programInfo.schedule} currentProgramName={programInfo.current.name} />}
+            {isScheduleVisible && <ScheduleDisplay schedule={programInfo.schedule} currentProgramName={programInfo.current.name} currentProgramProgress={programInfo.progress} />}
         </div>
     );
 };

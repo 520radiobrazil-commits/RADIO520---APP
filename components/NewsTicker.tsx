@@ -12,30 +12,48 @@ const initialTickerItems = [
   "Messi brilha em possível despedida em casa",
 ];
 
+// A pool of potential news items to simulate fetching new data
+const potentialNews = [
+    "RÁDIO 520 LANÇA NOVO PODCAST SOBRE MÚSICA E CULTURA POP!",
+    "ENTREVISTA EXCLUSIVA COM A BANDA DO MOMENTO NESTA SEXTA-FEIRA",
+    "AGENDA DE SHOWS ATUALIZADA: CONFIRA AS DATAS PARA ESTE MÊS",
+    "PROMOÇÃO VALENDO INGRESSOS PARA O FESTIVAL DE VERÃO. PARTICIPE!",
+    "NOVO SINGLE DE ARTISTA INTERNACIONAL TOCA PRIMEIRO AQUI NA 520",
+];
+
+// Simulates fetching a new item from an API
+const fetchNews = async (): Promise<string> => {
+    await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
+    const randomIndex = Math.floor(Math.random() * potentialNews.length);
+    return potentialNews[randomIndex];
+};
+
 const NewsTicker: React.FC = () => {
     const { showNotification } = useNotification();
     const [items, setItems] = useState<string[]>(initialTickerItems);
     const prevItemsRef = useRef<string[]>(initialTickerItems);
 
     useEffect(() => {
-        // This effect runs only on mount to simulate a new item arriving from a server
-        const timer = setTimeout(() => {
-          setItems(currentItems => [
-              ...currentItems, 
-              "RÁDIO 520 LANÇA NOVO PODCAST SOBRE MÚSICA E CULTURA POP!"
-          ]);
-        }, 10000); // Add a new item after 10 seconds
+        // Set up an interval to fetch news every 5 minutes
+        const intervalId = setInterval(async () => {
+            const newItem = await fetchNews();
+            setItems(currentItems => {
+                // Add the new item only if it's not already in the list
+                if (!currentItems.includes(newItem)) {
+                    return [...currentItems, newItem];
+                }
+                return currentItems;
+            });
+        }, 5 * 60 * 1000); // 5 minutes in milliseconds
 
-        return () => clearTimeout(timer);
-    }, []);
+        // Cleanup function to clear the interval when the component unmounts
+        return () => clearInterval(intervalId);
+    }, []); // Empty dependency array ensures this effect runs only once on mount
 
     useEffect(() => {
         // This effect detects when new items are added and shows a notification
         if (prevItemsRef.current.length < items.length) {
-            const newItems = items.slice(prevItemsRef.current.length);
-            newItems.forEach(item => {
-                showNotification(`${item} - Leia mais em www.radio520.com.br`);
-            });
+            showNotification("TEM NOTÍCIA NOVA NO SITE - www.radio520.com.br");
         }
         prevItemsRef.current = items;
     }, [items, showNotification]);

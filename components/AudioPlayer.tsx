@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import PlayIcon from './icons/PlayIcon';
 import PauseIcon from './icons/PauseIcon';
 import LoadingSpinner from './LoadingSpinner';
+import CloseIcon from './icons/CloseIcon';
 
 const AUDIO_STREAM_URL = "https://servidor40.brlogic.com:7054/live";
 const LOGO_URL = "https://public-rf-upload.minhawebradio.net/249695/ad/e4afe65bc29bd449a81737943a4e4091.png";
@@ -18,8 +19,12 @@ const backgroundImages = [
   'https://images.pexels.com/photos/3359734/pexels-photo-3359734.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'  // Vintage Radio
 ];
 
+interface AudioPlayerProps {
+  isScheduleVisible: boolean;
+  toggleSchedule: () => void;
+}
 
-const AudioPlayer: React.FC = () => {
+const AudioPlayer: React.FC<AudioPlayerProps> = ({ isScheduleVisible, toggleSchedule }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -149,13 +154,39 @@ const AudioPlayer: React.FC = () => {
               </div>
             </div>
 
-            <div className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 z-30 flex items-center space-x-2 px-3 py-1.5 bg-gray-900 rounded-full shadow-lg">
-                <span className="relative flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-                </span>
-                <p className="text-red-400 font-bold text-xs sm:text-sm uppercase tracking-widest text-glow">Ao Vivo</p>
+            <div className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 z-30 flex items-center bg-gray-900/80 backdrop-blur-sm rounded-full shadow-lg overflow-hidden">
+                <button
+                    onClick={toggleSchedule}
+                    className={`flex items-center space-x-2 pl-3 pr-2 py-1.5 text-xs sm:text-sm font-bold uppercase tracking-widest transition-colors duration-300 focus:outline-none ${
+                        isScheduleVisible
+                        ? 'bg-purple-600 text-white hover:bg-purple-700'
+                        : 'text-purple-400 hover:bg-gray-800 focus:bg-gray-800 text-glow-purple'
+                    }`}
+                    aria-label={isScheduleVisible ? "Fechar programação" : "Ver programação"}
+                    aria-expanded={isScheduleVisible}
+                >
+                    {isScheduleVisible ? (
+                        <CloseIcon className="w-4 h-4" />
+                    ) : (
+                        <span className="relative flex h-3 w-3">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
+                        </span>
+                    )}
+                    <span className="pr-1">{isScheduleVisible ? "Fechar" : "Programação"}</span>
+                </button>
+
+                <div className="w-px h-4 bg-gray-600 self-center"></div>
+
+                <div className="flex items-center space-x-2 px-3 py-1.5 cursor-default" title="Você está ouvindo a transmissão ao vivo">
+                    <span className="relative flex h-3 w-3">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                    </span>
+                    <p className="text-red-400 font-bold text-xs sm:text-sm uppercase tracking-widest text-glow">Ao Vivo</p>
+                </div>
             </div>
+
 
             <button
                 onClick={togglePlayPause}
