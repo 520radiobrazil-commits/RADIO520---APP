@@ -67,7 +67,7 @@ const scheduleWednesday: Program[] = [
     { start: '18:05', end: '20:00', name: 'MIX520 - AS MAIS TOCADAS PELO MUNDO' },
     { start: '20:00', end: '20:10', name: 'REPÓRTER520' },
     { start: '20:10', end: '22:00', name: 'BEATS520' },
-    { start: '22:00', end: '22:10', name: 'RÁDIO520 VIVA MELHOR' },
+    { start: '22:00', end: '22:10', name: 'RÁDIO520 VIVA MELhor' },
     { start: '22:10', end: '24:00', name: 'CLASSIC HITS' },
 ];
 

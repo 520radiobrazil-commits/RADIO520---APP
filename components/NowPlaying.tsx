@@ -7,6 +7,7 @@ import ScheduleDisplay from './ScheduleDisplay';
 import { Program, dailySchedules } from './scheduleData';
 import { useNotification } from '../context/NotificationContext';
 import ShareButton from './ShareButton';
+import CloseIcon from './icons/CloseIcon';
 
 const timeToMinutes = (time: string): number => {
     const [hours, minutes] = time.split(':').map(Number);
@@ -459,13 +460,19 @@ const NowPlaying: React.FC = () => {
                             <BellIcon className="w-4 h-4" />
                             <span>{isOrasomReminderSet ? "Lembrete Criado" : "Criar Lembrete"}</span>
                         </button>
-                        <button 
+                        <button
                             onClick={toggleSchedule}
-                            className="p-1.5 rounded-full bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white transition-colors duration-200"
-                            title="Ver programação completa"
-                            aria-label="Ver programação completa"
+                            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-300 ${
+                                isScheduleVisible
+                                ? 'bg-red-800 text-white hover:bg-red-700'
+                                : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white'
+                            }`}
+                            title={isScheduleVisible ? "Fechar programação" : "Ver programação completa"}
+                            aria-label={isScheduleVisible ? "Fechar programação" : "Ver programação completa"}
+                            aria-expanded={isScheduleVisible}
                         >
-                            <ScheduleIcon className="w-4 h-4" />
+                            {isScheduleVisible ? <CloseIcon className="w-4 h-4" /> : <ScheduleIcon className="w-4 h-4" />}
+                            <span>{isScheduleVisible ? 'Fechar' : 'Programação'}</span>
                         </button>
                     </div>
                 </div>

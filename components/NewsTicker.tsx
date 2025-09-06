@@ -2,10 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNotification } from '../context/NotificationContext';
 
 const initialTickerItems = [
-  "BRASIL VENCE CHILE NO MARACANÃ POR 3X0 E AGORA ENFRENTA A BOLÍVIA NA ALTITUDE",
+  "SELEÇÃO FEMININA DE VÔLEI É ELIMINADA PELA ITÁLIA NAS SEMIFINAIS DO MUNDIAL E VAI DISPUTAR O BRONZE COM O JAPÃO",
   "DOMINGO ESTRÉIA 'ORASOM 520', O PROGRAMA QUE VAI TE RECONECTAR E REENERGIZAR PARA A SEMANA QUE COMEÇA! DOMINGO 05:00 AM",
-  "Fique por dentro das últimas notícias em radio520.com.br",
-  "Começou A Temporada Da NFL E Eagles Batem Cowboys Em Jogo Tenso",
+  "A RÁDIO 520 TEMBÉM ESTÁ NA ALEXA! ATIVE A NOSSO SKILL NO APP",
+  "NFL NO BRASIL: CHARGERS SURPREENDEM E BATEM OS CHIEFS POR VINTE E SETE A VINTE E UM NA NEO QUÍMICA ARENA, EM SÃO PAULO",
   "Acompanhe nossa programação ao vivo em vídeo e áudio.",
   "Baixe nosso app e leve a Rádio 520 com você.",
   "Confira a cobertura completa dos eventos locais no nosso site.",
