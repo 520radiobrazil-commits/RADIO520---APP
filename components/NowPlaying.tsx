@@ -1,6 +1,7 @@
 
 
 
+
 import React, { useState, useEffect, useRef } from 'react';
 import BellIcon from './icons/BellIcon';
 import ScheduleDisplay from './ScheduleDisplay';
@@ -48,11 +49,11 @@ const getBrasiliaTimeInfo = (): { dayOfWeek: number, hours: number, minutes: num
     };
 };
 
-const getOrasomCountdown = (): string => {
+const getBusinessRockCountdown = (): string => {
     const { dayOfWeek, hours, minutes, seconds, year, month, day } = getBrasiliaTimeInfo();
-    const targetDay = 0; // Sunday
-    const targetHour = 5;
-    const targetMinute = 0;
+    const targetDay = 2; // Tuesday
+    const targetHour = 20;
+    const targetMinute = 10;
 
     // Use Date.UTC to get timestamps for specific wall times, making them timezone-independent
     const nowInBrasiliaAsTimestamp = Date.UTC(year, month - 1, day, hours, minutes, seconds);
@@ -60,7 +61,7 @@ const getOrasomCountdown = (): string => {
     let targetDate = new Date(nowInBrasiliaAsTimestamp);
     
     let daysUntilTarget = (targetDay - dayOfWeek + 7) % 7;
-    if (daysUntilTarget === 0 && (hours > targetHour || (hours === targetHour && minutes > targetMinute))) {
+    if (daysUntilTarget === 0 && (hours > targetHour || (hours === targetHour && minutes >= targetMinute))) {
         daysUntilTarget = 7;
     }
 
@@ -195,10 +196,10 @@ const createICSFile = (program: Program, isNextDay: boolean) => {
     document.body.removeChild(link);
 };
 
-const createOrasomICSFile = () => {
+const createBusinessRockICSFile = () => {
     const { dayOfWeek, hours, year, month, day } = getBrasiliaTimeInfo();
-    const targetDay = 0; // Sunday
-    const targetHour = 5;
+    const targetDay = 2; // Tuesday
+    const targetHour = 20;
 
     let targetDate = new Date(Date.UTC(year, month - 1, day));
 
@@ -209,7 +210,7 @@ const createOrasomICSFile = () => {
     
     targetDate.setUTCDate(targetDate.getUTCDate() + daysUntilTarget);
 
-    const program = { name: 'ORASOM 520', start: '05:00', end: '07:00' };
+    const program = { name: 'BUSINESS ROCK COM KIKO ZAMBIANCHI', start: '20:10', end: '22:00' };
     const [startHours, startMinutes] = program.start.split(':').map(Number);
     const [endHours, endMinutes] = program.end.split(':').map(Number);
 
@@ -220,9 +221,9 @@ const createOrasomICSFile = () => {
     const dtStart = formatDateForICS(startDate);
     const dtEnd = formatDateForICS(endDate);
     
-    const uid = `${dtStart}-orasom520@radio520.com.br`;
-    const summary = `ORASOM 520`;
-    const description = `Lembrete para ouvir ORASOM 520 na Rádio 520. Acesse: https://www.radio520.com.br`;
+    const uid = `${dtStart}-businessrock@radio520.com.br`;
+    const summary = `BUSINESS ROCK COM KIKO ZAMBIANCHI`;
+    const description = `Lembrete para ouvir BUSINESS ROCK COM KIKO ZAMBIANCHI na Rádio 520. Acesse: https://www.radio520.com.br`;
     const location = "Rádio 520";
 
     const icsContent = [
@@ -244,7 +245,7 @@ const createOrasomICSFile = () => {
     const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    const fileName = `lembrete-orasom-520.ics`;
+    const fileName = `lembrete-business-rock.ics`;
     link.setAttribute('download', fileName);
     document.body.appendChild(link);
     link.click();
@@ -293,7 +294,7 @@ const NowPlaying: React.FC<NowPlayingProps> = ({ isScheduleVisible }) => {
         schedule: [] as Program[],
         progress: 0,
     });
-    const [orasomCountdown, setOrasomCountdown] = useState('00:00:00');
+    const [businessRockCountdown, setBusinessRockCountdown] = useState('00:00:00');
     const [activeReminders, setActiveReminders] = useState<Set<string>>(new Set());
     const prevProgramNameRef = useRef<string | null>(null);
 
@@ -325,8 +326,8 @@ const NowPlaying: React.FC<NowPlayingProps> = ({ isScheduleVisible }) => {
             }
             prevProgramNameRef.current = info.current.name;
 
-            const orasomTime = getOrasomCountdown();
-            setOrasomCountdown(orasomTime);
+            const businessRockTime = getBusinessRockCountdown();
+            setBusinessRockCountdown(businessRockTime);
             
             const msUntilNextSecond = 1000 - new Date().getMilliseconds();
             timerId = window.setTimeout(updateSchedule, msUntilNextSecond);
@@ -354,17 +355,17 @@ const NowPlaying: React.FC<NowPlayingProps> = ({ isScheduleVisible }) => {
         }
     };
     
-    const handleOrasomReminderClick = () => {
-        createOrasomICSFile();
-        updateReminders('ORASOM 520');
-        showNotification('Lembrete para "ORASOM 520" criado!');
+    const handleBusinessRockReminderClick = () => {
+        createBusinessRockICSFile();
+        updateReminders('BUSINESS ROCK');
+        showNotification('Lembrete para "BUSINESS ROCK" criado!');
     };
 
-    const ORASOM_ICON_URL = "https://public-rf-upload.minhawebradio.net/249695/ad/dbdeb191c4ddc5877d49a2a0f4066233.jpg";
-    const [hours, minutes, seconds] = orasomCountdown.split(':');
+    const BUSINESS_ROCK_ICON_URL = "https://public-rf-upload.minhawebradio.net/249695/ad/6f1b33a792d40ac1d53ea3640a4b0b44.png";
+    const [hours, minutes, seconds] = businessRockCountdown.split(':');
 
     const isNextProgramReminderSet = programInfo.next?.name ? activeReminders.has(programInfo.next.name) : false;
-    const isOrasomReminderSet = activeReminders.has('ORASOM 520');
+    const isBusinessRockReminderSet = activeReminders.has('BUSINESS ROCK');
 
     return (
         <div className="relative text-center my-2 p-4 bg-black bg-opacity-30 rounded-lg w-full max-w-xl lg:max-w-2xl xl:max-w-3xl mx-auto shadow-lg transition-all duration-300">
@@ -419,11 +420,11 @@ const NowPlaying: React.FC<NowPlayingProps> = ({ isScheduleVisible }) => {
             <div className="mt-3 pt-3 border-t border-gray-700 flex flex-col md:flex-row justify-around items-center gap-4 md:gap-8 px-2">
                 {/* Left Part: Image and Title */}
                 <div className="flex items-center gap-4 text-left">
-                    <img src={ORASOM_ICON_URL} alt="ORASOM 520" className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full border-2 border-red-500 shadow-lg" />
+                    <img src={BUSINESS_ROCK_ICON_URL} alt="BUSINESS ROCK COM KIKO ZAMBIANCHI" className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full border-2 border-red-500 shadow-lg" />
                     <div>
                         <p className="text-sm font-bold text-red-500 uppercase tracking-widest">Vem aí...</p>
-                        <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">ORASOM 520</h3>
-                        <p className="text-xs text-gray-400">Todo domingo, às 05:00.</p>
+                        <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">BUSINESS ROCK COM KIKO ZAMBIANCHI</h3>
+                        <p className="text-xs text-gray-400">Toda terça, às 20:10.</p>
                     </div>
                 </div>
 
@@ -447,16 +448,16 @@ const NowPlaying: React.FC<NowPlayingProps> = ({ isScheduleVisible }) => {
                     </div>
                     <div className="flex items-center space-x-2">
                         <button
-                            onClick={handleOrasomReminderClick}
+                            onClick={handleBusinessRockReminderClick}
                             className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors duration-200 ${
-                                isOrasomReminderSet
+                                isBusinessRockReminderSet
                                 ? 'bg-orange-600 text-white cursor-default'
                                 : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white'
                             }`}
-                            aria-label="Criar lembrete para ORASOM 520"
+                            aria-label="Criar lembrete para BUSINESS ROCK"
                         >
                             <BellIcon className="w-4 h-4" />
-                            <span>{isOrasomReminderSet ? "Lembrete Criado" : "Criar Lembrete"}</span>
+                            <span>{isBusinessRockReminderSet ? "Lembrete Criado" : "Criar Lembrete"}</span>
                         </button>
                     </div>
                 </div>
