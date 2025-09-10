@@ -2,6 +2,10 @@
 
 
 
+
+
+
+
 import React, { useState, useEffect, useRef } from 'react';
 import BellIcon from './icons/BellIcon';
 import ScheduleDisplay from './ScheduleDisplay';
@@ -49,13 +53,12 @@ const getBrasiliaTimeInfo = (): { dayOfWeek: number, hours: number, minutes: num
     };
 };
 
-const getBusinessRockCountdown = (): string => {
+const getDanceClubCountdown = (): string => {
     const { dayOfWeek, hours, minutes, seconds, year, month, day } = getBrasiliaTimeInfo();
-    const targetDay = 2; // Tuesday
+    const targetDay = 6; // Saturday
     const targetHour = 20;
-    const targetMinute = 10;
+    const targetMinute = 0;
 
-    // Use Date.UTC to get timestamps for specific wall times, making them timezone-independent
     const nowInBrasiliaAsTimestamp = Date.UTC(year, month - 1, day, hours, minutes, seconds);
 
     let targetDate = new Date(nowInBrasiliaAsTimestamp);
@@ -196,9 +199,9 @@ const createICSFile = (program: Program, isNextDay: boolean) => {
     document.body.removeChild(link);
 };
 
-const createBusinessRockICSFile = () => {
+const createDanceClubICSFile = () => {
     const { dayOfWeek, hours, year, month, day } = getBrasiliaTimeInfo();
-    const targetDay = 2; // Tuesday
+    const targetDay = 6; // Saturday
     const targetHour = 20;
 
     let targetDate = new Date(Date.UTC(year, month - 1, day));
@@ -210,7 +213,7 @@ const createBusinessRockICSFile = () => {
     
     targetDate.setUTCDate(targetDate.getUTCDate() + daysUntilTarget);
 
-    const program = { name: 'BUSINESS ROCK COM KIKO ZAMBIANCHI', start: '20:10', end: '22:00' };
+    const program = { name: 'RÁDIO520 - DANCE CLUB', start: '20:00', end: '22:00' };
     const [startHours, startMinutes] = program.start.split(':').map(Number);
     const [endHours, endMinutes] = program.end.split(':').map(Number);
 
@@ -221,9 +224,9 @@ const createBusinessRockICSFile = () => {
     const dtStart = formatDateForICS(startDate);
     const dtEnd = formatDateForICS(endDate);
     
-    const uid = `${dtStart}-businessrock@radio520.com.br`;
-    const summary = `BUSINESS ROCK COM KIKO ZAMBIANCHI`;
-    const description = `Lembrete para ouvir BUSINESS ROCK COM KIKO ZAMBIANCHI na Rádio 520. Acesse: https://www.radio520.com.br`;
+    const uid = `${dtStart}-danceclub@radio520.com.br`;
+    const summary = `RÁDIO520 - DANCE CLUB`;
+    const description = `Lembrete para ouvir RÁDIO520 - DANCE CLUB na Rádio 520. Acesse: https://www.radio520.com.br`;
     const location = "Rádio 520";
 
     const icsContent = [
@@ -245,7 +248,7 @@ const createBusinessRockICSFile = () => {
     const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    const fileName = `lembrete-business-rock.ics`;
+    const fileName = `lembrete-dance-club.ics`;
     link.setAttribute('download', fileName);
     document.body.appendChild(link);
     link.click();
@@ -294,7 +297,7 @@ const NowPlaying: React.FC<NowPlayingProps> = ({ isScheduleVisible }) => {
         schedule: [] as Program[],
         progress: 0,
     });
-    const [businessRockCountdown, setBusinessRockCountdown] = useState('00:00:00');
+    const [danceClubCountdown, setDanceClubCountdown] = useState('00:00:00');
     const [activeReminders, setActiveReminders] = useState<Set<string>>(new Set());
     const prevProgramNameRef = useRef<string | null>(null);
 
@@ -326,8 +329,8 @@ const NowPlaying: React.FC<NowPlayingProps> = ({ isScheduleVisible }) => {
             }
             prevProgramNameRef.current = info.current.name;
 
-            const businessRockTime = getBusinessRockCountdown();
-            setBusinessRockCountdown(businessRockTime);
+            const danceClubTime = getDanceClubCountdown();
+            setDanceClubCountdown(danceClubTime);
             
             const msUntilNextSecond = 1000 - new Date().getMilliseconds();
             timerId = window.setTimeout(updateSchedule, msUntilNextSecond);
@@ -355,17 +358,17 @@ const NowPlaying: React.FC<NowPlayingProps> = ({ isScheduleVisible }) => {
         }
     };
     
-    const handleBusinessRockReminderClick = () => {
-        createBusinessRockICSFile();
-        updateReminders('BUSINESS ROCK');
-        showNotification('Lembrete para "BUSINESS ROCK" criado!');
+    const handleDanceClubReminderClick = () => {
+        createDanceClubICSFile();
+        updateReminders('DANCE CLUB');
+        showNotification('Lembrete para "DANCE CLUB" criado!');
     };
 
-    const BUSINESS_ROCK_ICON_URL = "https://public-rf-upload.minhawebradio.net/249695/ad/6f1b33a792d40ac1d53ea3640a4b0b44.png";
-    const [hours, minutes, seconds] = businessRockCountdown.split(':');
+    const DANCE_CLUB_ICON_URL = "https://public-rf-upload.minhawebradio.net/249695/ad/bda4a07d7529383572a0c9cb1649bd0d.png";
+    const [hours, minutes, seconds] = danceClubCountdown.split(':');
 
     const isNextProgramReminderSet = programInfo.next?.name ? activeReminders.has(programInfo.next.name) : false;
-    const isBusinessRockReminderSet = activeReminders.has('BUSINESS ROCK');
+    const isDanceClubReminderSet = activeReminders.has('DANCE CLUB');
 
     return (
         <div className="relative text-center my-2 p-4 bg-black bg-opacity-30 rounded-lg w-full max-w-xl lg:max-w-2xl xl:max-w-3xl mx-auto shadow-lg transition-all duration-300">
@@ -420,11 +423,11 @@ const NowPlaying: React.FC<NowPlayingProps> = ({ isScheduleVisible }) => {
             <div className="mt-3 pt-3 border-t border-gray-700 flex flex-col md:flex-row justify-around items-center gap-4 md:gap-8 px-2">
                 {/* Left Part: Image and Title */}
                 <div className="flex items-center gap-4 text-left">
-                    <img src={BUSINESS_ROCK_ICON_URL} alt="BUSINESS ROCK COM KIKO ZAMBIANCHI" className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full border-2 border-red-500 shadow-lg" />
+                    <img src={DANCE_CLUB_ICON_URL} alt="RÁDIO 520 DANCE CLUB" className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full border-2 border-purple-500 shadow-lg object-cover" />
                     <div>
-                        <p className="text-sm font-bold text-red-500 uppercase tracking-widest">Vem aí...</p>
-                        <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">BUSINESS ROCK COM KIKO ZAMBIANCHI</h3>
-                        <p className="text-xs text-gray-400">Toda terça, às 20:10.</p>
+                        <p className="text-sm font-bold text-purple-400 uppercase tracking-widest">Vem aí...</p>
+                        <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">RÁDIO 520 DANCE CLUB</h3>
+                        <p className="text-xs text-gray-400">Todo sábado, às 20:00.</p>
                     </div>
                 </div>
 
@@ -448,16 +451,16 @@ const NowPlaying: React.FC<NowPlayingProps> = ({ isScheduleVisible }) => {
                     </div>
                     <div className="flex items-center space-x-2">
                         <button
-                            onClick={handleBusinessRockReminderClick}
+                            onClick={handleDanceClubReminderClick}
                             className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors duration-200 ${
-                                isBusinessRockReminderSet
+                                isDanceClubReminderSet
                                 ? 'bg-orange-600 text-white cursor-default'
                                 : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white'
                             }`}
-                            aria-label="Criar lembrete para BUSINESS ROCK"
+                            aria-label="Criar lembrete para RÁDIO 520 DANCE CLUB"
                         >
                             <BellIcon className="w-4 h-4" />
-                            <span>{isBusinessRockReminderSet ? "Lembrete Criado" : "Criar Lembrete"}</span>
+                            <span>{isDanceClubReminderSet ? "Lembrete Criado" : "Criar Lembrete"}</span>
                         </button>
                     </div>
                 </div>
