@@ -6,12 +6,15 @@
 
 
 
+
+
 import React, { useState, useEffect, useRef } from 'react';
 import BellIcon from './icons/BellIcon';
 import ScheduleDisplay from './ScheduleDisplay';
 import { Program, dailySchedules } from './scheduleData';
 import { useNotification } from '../context/NotificationContext';
 import ShareButton from './ShareButton';
+import { PlayerMode } from '../types';
 
 const timeToMinutes = (time: string): number => {
     const [hours, minutes] = time.split(':').map(Number);
@@ -285,9 +288,10 @@ const ScrollableText: React.FC<{text: string; className: string; threshold?: num
 
 interface NowPlayingProps {
     isScheduleVisible: boolean;
+    playerMode: PlayerMode;
 }
 
-const NowPlaying: React.FC<NowPlayingProps> = ({ isScheduleVisible }) => {
+const NowPlaying: React.FC<NowPlayingProps> = ({ isScheduleVisible, playerMode }) => {
     const { showNotification } = useNotification();
     const [programInfo, setProgramInfo] = useState({
         current: { name: 'Carregando...' } as Program,
@@ -300,6 +304,15 @@ const NowPlaying: React.FC<NowPlayingProps> = ({ isScheduleVisible }) => {
     const [danceClubCountdown, setDanceClubCountdown] = useState('00:00:00');
     const [activeReminders, setActiveReminders] = useState<Set<string>>(new Set());
     const prevProgramNameRef = useRef<string | null>(null);
+
+    const playerModeRef = useRef(playerMode);
+    useEffect(() => {
+        playerModeRef.current = playerMode;
+    }, [playerMode]);
+    
+    const notificationShownForProgram = useRef<string | null>(null);
+    const videoProgramName = 'MIX520 - AS MAIS TOCADAS PELO MUNDO';
+
 
     useEffect(() => {
         try {
@@ -329,6 +342,18 @@ const NowPlaying: React.FC<NowPlayingProps> = ({ isScheduleVisible }) => {
             }
             prevProgramNameRef.current = info.current.name;
 
+            // New notification logic for video availability
+            if (
+                playerModeRef.current === PlayerMode.AUDIO &&
+                info.current.name === videoProgramName &&
+                notificationShownForProgram.current !== videoProgramName
+            ) {
+                notificationShownForProgram.current = videoProgramName; // Mark as shown to prevent re-triggering
+                setTimeout(() => {
+                    showNotification("ESTA TRANSMISSÃO ESTÁ DISPONÍVEL EM VÍDEO AO VIVO");
+                }, 3000); // Delay notification slightly
+            }
+
             const danceClubTime = getDanceClubCountdown();
             setDanceClubCountdown(danceClubTime);
             
@@ -339,7 +364,7 @@ const NowPlaying: React.FC<NowPlayingProps> = ({ isScheduleVisible }) => {
         updateSchedule();
 
         return () => clearTimeout(timerId);
-    }, []);
+    }, [showNotification]);
 
     const updateReminders = (programName: string) => {
         const newReminders = new Set(activeReminders);

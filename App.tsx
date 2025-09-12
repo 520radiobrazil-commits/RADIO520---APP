@@ -2,6 +2,8 @@
 
 
 
+
+
 import React, { useState } from 'react';
 import { PlayerMode } from './types';
 import Header from './components/Header';
@@ -44,7 +46,7 @@ const App: React.FC = () => {
             {playerMode === PlayerMode.VIDEO ? <VideoPlayer /> : <AudioPlayer isScheduleVisible={isScheduleVisible} toggleSchedule={toggleSchedule} />}
           </div>
           
-          <NowPlaying isScheduleVisible={isScheduleVisible} />
+          <NowPlaying isScheduleVisible={isScheduleVisible} playerMode={playerMode} />
 
           <div className="flex flex-wrap justify-center items-center gap-4">
               <button
