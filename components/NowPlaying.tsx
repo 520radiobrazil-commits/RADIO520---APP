@@ -1,13 +1,4 @@
 
-
-
-
-
-
-
-
-
-
 import React, { useState, useEffect, useRef } from 'react';
 import BellIcon from './icons/BellIcon';
 import ScheduleDisplay from './ScheduleDisplay';
@@ -56,11 +47,11 @@ const getBrasiliaTimeInfo = (): { dayOfWeek: number, hours: number, minutes: num
     };
 };
 
-const getDanceClubCountdown = (): string => {
+const getTop20Countdown = (): string => {
     const { dayOfWeek, hours, minutes, seconds, year, month, day } = getBrasiliaTimeInfo();
-    const targetDay = 6; // Saturday
+    const targetDay = 4; // Thursday
     const targetHour = 20;
-    const targetMinute = 0;
+    const targetMinute = 10;
 
     const nowInBrasiliaAsTimestamp = Date.UTC(year, month - 1, day, hours, minutes, seconds);
 
@@ -202,9 +193,9 @@ const createICSFile = (program: Program, isNextDay: boolean) => {
     document.body.removeChild(link);
 };
 
-const createDanceClubICSFile = () => {
+const createTop20ICSFile = () => {
     const { dayOfWeek, hours, year, month, day } = getBrasiliaTimeInfo();
-    const targetDay = 6; // Saturday
+    const targetDay = 4; // Thursday
     const targetHour = 20;
 
     let targetDate = new Date(Date.UTC(year, month - 1, day));
@@ -216,7 +207,7 @@ const createDanceClubICSFile = () => {
     
     targetDate.setUTCDate(targetDate.getUTCDate() + daysUntilTarget);
 
-    const program = { name: 'RÁDIO520 - DANCE CLUB', start: '20:00', end: '22:00' };
+    const program = { name: 'RÁDIO520 - TOP20', start: '20:10', end: '22:00' };
     const [startHours, startMinutes] = program.start.split(':').map(Number);
     const [endHours, endMinutes] = program.end.split(':').map(Number);
 
@@ -227,9 +218,9 @@ const createDanceClubICSFile = () => {
     const dtStart = formatDateForICS(startDate);
     const dtEnd = formatDateForICS(endDate);
     
-    const uid = `${dtStart}-danceclub@radio520.com.br`;
-    const summary = `RÁDIO520 - DANCE CLUB`;
-    const description = `Lembrete para ouvir RÁDIO520 - DANCE CLUB na Rádio 520. Acesse: https://www.radio520.com.br`;
+    const uid = `${dtStart}-top20@radio520.com.br`;
+    const summary = `RÁDIO520 - TOP20`;
+    const description = `Lembrete para ouvir RÁDIO520 - TOP20 na Rádio 520. Acesse: https://www.radio520.com.br`;
     const location = "Rádio 520";
 
     const icsContent = [
@@ -251,7 +242,7 @@ const createDanceClubICSFile = () => {
     const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    const fileName = `lembrete-dance-club.ics`;
+    const fileName = `lembrete-top20.ics`;
     link.setAttribute('download', fileName);
     document.body.appendChild(link);
     link.click();
@@ -301,7 +292,7 @@ const NowPlaying: React.FC<NowPlayingProps> = ({ isScheduleVisible, playerMode }
         schedule: [] as Program[],
         progress: 0,
     });
-    const [danceClubCountdown, setDanceClubCountdown] = useState('00:00:00');
+    const [top20Countdown, setTop20Countdown] = useState('00:00:00');
     const [activeReminders, setActiveReminders] = useState<Set<string>>(new Set());
     const prevProgramNameRef = useRef<string | null>(null);
 
@@ -354,8 +345,8 @@ const NowPlaying: React.FC<NowPlayingProps> = ({ isScheduleVisible, playerMode }
                 }, 3000); // Delay notification slightly
             }
 
-            const danceClubTime = getDanceClubCountdown();
-            setDanceClubCountdown(danceClubTime);
+            const top20Time = getTop20Countdown();
+            setTop20Countdown(top20Time);
             
             const msUntilNextSecond = 1000 - new Date().getMilliseconds();
             timerId = window.setTimeout(updateSchedule, msUntilNextSecond);
@@ -383,17 +374,17 @@ const NowPlaying: React.FC<NowPlayingProps> = ({ isScheduleVisible, playerMode }
         }
     };
     
-    const handleDanceClubReminderClick = () => {
-        createDanceClubICSFile();
-        updateReminders('DANCE CLUB');
-        showNotification('Lembrete para "DANCE CLUB" criado!');
+    const handleTop20ReminderClick = () => {
+        createTop20ICSFile();
+        updateReminders('TOP20');
+        showNotification('Lembrete para "TOP20" criado!');
     };
 
-    const DANCE_CLUB_ICON_URL = "https://public-rf-upload.minhawebradio.net/249695/ad/bda4a07d7529383572a0c9cb1649bd0d.png";
-    const [hours, minutes, seconds] = danceClubCountdown.split(':');
+    const TOP20_ICON_URL = "https://public-rf-upload.minhawebradio.net/249695/ad/f5542304df7c895674e96ef46e946f20.png";
+    const [hours, minutes, seconds] = top20Countdown.split(':');
 
     const isNextProgramReminderSet = programInfo.next?.name ? activeReminders.has(programInfo.next.name) : false;
-    const isDanceClubReminderSet = activeReminders.has('DANCE CLUB');
+    const isTop20ReminderSet = activeReminders.has('TOP20');
 
     return (
         <div className="relative text-center my-2 p-4 bg-black bg-opacity-30 rounded-lg w-full max-w-xl lg:max-w-2xl xl:max-w-3xl mx-auto shadow-lg transition-all duration-300">
@@ -448,11 +439,11 @@ const NowPlaying: React.FC<NowPlayingProps> = ({ isScheduleVisible, playerMode }
             <div className="mt-3 pt-3 border-t border-gray-700 flex flex-col md:flex-row justify-around items-center gap-4 md:gap-8 px-2">
                 {/* Left Part: Image and Title */}
                 <div className="flex items-center gap-4 text-left">
-                    <img src={DANCE_CLUB_ICON_URL} alt="RÁDIO 520 DANCE CLUB" className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full border-2 border-purple-500 shadow-lg object-cover" />
+                    <img src={TOP20_ICON_URL} alt="RÁDIO520 - TOP20" className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full border-2 border-purple-500 shadow-lg object-contain p-2" />
                     <div>
                         <p className="text-sm font-bold text-purple-400 uppercase tracking-widest">Vem aí...</p>
-                        <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">RÁDIO 520 DANCE CLUB</h3>
-                        <p className="text-xs text-gray-400">Todo sábado, às 20:00.</p>
+                        <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">RÁDIO520 - TOP20</h3>
+                        <p className="text-xs text-gray-400">Toda quinta, às 20:10.</p>
                     </div>
                 </div>
 
@@ -476,16 +467,16 @@ const NowPlaying: React.FC<NowPlayingProps> = ({ isScheduleVisible, playerMode }
                     </div>
                     <div className="flex items-center space-x-2">
                         <button
-                            onClick={handleDanceClubReminderClick}
+                            onClick={handleTop20ReminderClick}
                             className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors duration-200 ${
-                                isDanceClubReminderSet
+                                isTop20ReminderSet
                                 ? 'bg-orange-600 text-white cursor-default'
                                 : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white'
                             }`}
-                            aria-label="Criar lembrete para RÁDIO 520 DANCE CLUB"
+                            aria-label="Criar lembrete para RÁDIO 520 TOP20"
                         >
                             <BellIcon className="w-4 h-4" />
-                            <span>{isDanceClubReminderSet ? "Lembrete Criado" : "Criar Lembrete"}</span>
+                            <span>{isTop20ReminderSet ? "Lembrete Criado" : "Criar Lembrete"}</span>
                         </button>
                     </div>
                 </div>

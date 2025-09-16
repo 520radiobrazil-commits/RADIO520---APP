@@ -128,7 +128,7 @@ const scheduleSaturday: Program[] = [
     { start: '18:00', end: '18:05', name: 'HORA DA AVE MARIA' },
     { start: '18:05', end: '19:50', name: 'BR520' },
     { start: '19:50', end: '20:00', name: 'RÁDIO520 VIVA MELHOR' },
-    { start: '20:00', end: '22:00', name: 'RÁDIO520 - DANCE CLUB' },
+    { start: '20:00', end: '22:00', name: 'RÁDIO520 - TOP20' },
     { start: '22:00', end: '24:00', name: 'SUPERSEQUÊNCIA' },
 ];
 

@@ -3,13 +3,13 @@ import { useNotification } from '../context/NotificationContext';
 
 const initialTickerItems = [
   "VIVA MELHOR COM LU SKYLARK, DICAS PARA VIVER MELHOR E COM MAIS SAÚDE. TODOS OS DIAS NA SUA RÁDIO!",
-  "CRUZEIRO VENCE ATLÉTICO-MG POR 2 A 0 NO MINEIRÃO E GARANTE VAGA NA SEMIFINAL DA COPA DO BRASIL",
-  "VASCO GARANTE VAGA NA SEMIFINAL DA COPA DO BRASIL EM DISPUTA EMOCIONANTE",
+  "Brasil vence República Tcheca e se prepara para duelo histórico contra Sérvia no Mundial de Vôlei",
+  "Champions League Explosiva: As Estrelas que Podem Mudar Tudo na Rodada de Hoje!",
   "A RÁDIO 520 TAMBÉM ESTÁ NA ALEXA! ATIVE A NOSSO SKILL NO APP",
   "MEL GIBSON FALA SOBRE FÉ E REVELA DETALHES DE A RESSURREIÇÃO DE CRISTO EM ENTREVISTA A JOE ROGAN",
   "DE SEGUNDA A SEXTA ÀS 18:00, TEM MIX 520 TOCANDO AS MELHORES DO PLANETA.",
-  " PACKERS BRILHAM EM CASA E DERROTAM COMMANDERS POR 27 A 18",
-  "DATA 520 : GABI BRILHA NO MUNDIAL DE VÔLEI! CAPITÃ DO BRASIL SOMA 142 PONTOS, É ELEITA MELHOR PONTEIRA E ENTREGA VITÓRIA DO BRONZE CONTRA O JAPÃO!",
+  " Mundial de Atletismo 2025: Brasil fatura medalha com Bonfim e segue forte nas provas",
+  "O Brasil está classificado para a fase qualificatória da Copa Davis 2026!",
   "DE SEGUNDA A SEXTA ROLA O MIX 520 AO VIVO COM IMAGENS ",
 ];
 
