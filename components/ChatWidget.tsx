@@ -2,20 +2,14 @@ import React, { useEffect } from 'react';
 import { getVisitorInfo } from '../utils/visitor';
 import { useNotification } from '../context/NotificationContext';
 
-const TAWK_PROPERTY_ID = '68d6ca858b3ee61953e1bdbf';
-const TAWK_WIDGET_ID = '1j63ge6g8';
-
 const ChatWidget: React.FC = () => {
   const { showNotification } = useNotification();
 
   useEffect(() => {
-    // Prevent script from being injected multiple times
-    if (document.getElementById('tawk-to-script')) {
-      return;
-    }
-
+    // The Tawk.to script is now loaded directly from index.html.
+    // This component is responsible for configuring the Tawk_API object once it's available.
     const Tawk_API = (window as any).Tawk_API || {};
-    (window as any).Tawk_LoadStart = new Date();
+    (window as any).Tawk_API = Tawk_API;
 
     const initializeChat = () => {
       // Guard to ensure initialization only runs once
@@ -67,23 +61,6 @@ const ChatWidget: React.FC = () => {
       showNotification('Diga seu nome e cidade para a gente te conhecer e identificar seu pedido!');
     };
 
-    (window as any).Tawk_API = Tawk_API;
-
-    // Inject the Tawk.to script
-    const script = document.createElement("script");
-    script.id = 'tawk-to-script';
-    script.async = true;
-    script.src = `https://embed.tawk.to/${TAWK_PROPERTY_ID}/${TAWK_WIDGET_ID}`;
-    script.charset = 'UTF-8';
-    script.setAttribute('crossorigin', '*');
-    
-    const firstScript = document.getElementsByTagName("script")[0];
-    if (firstScript && firstScript.parentNode) {
-      firstScript.parentNode.insertBefore(script, firstScript);
-    } else {
-      document.head.appendChild(script);
-    }
-    
     // Fallback polling mechanism in case onLoad doesn't fire
     const pollForApi = (retries: number) => {
         if (retries <= 0) {
@@ -101,7 +78,6 @@ const ChatWidget: React.FC = () => {
     };
     
     // Start polling after 2 seconds, giving onLoad a chance to fire first.
-    // Poll for up to 15 seconds (30 retries * 500ms).
     setTimeout(() => pollForApi(30), 2000);
 
   }, [showNotification]);
