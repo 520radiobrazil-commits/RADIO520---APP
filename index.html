@@ -132,6 +132,14 @@
       .text-glow-cyan {
         text-shadow: 0 0 8px rgba(34, 211, 238, 0.7), 0 0 12px rgba(34, 211, 238, 0.5);
       }
+      
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+      .scrollbar-hide {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+      }
 
       @-webkit-keyframes icon-pulse-glow {
         0%, 100% {
@@ -206,6 +214,25 @@
 </head>
   <body>
     <div id="root"></div>
+    <script>
+      // Placeholder for our chat API functions to avoid race conditions.
+      // This object provides a safe interface for the app to call. It handles clicks
+      // that happen before the chat script is fully loaded by queuing the request.
+      window.R520_Chat = {
+        _isInitialized: false,
+        _showRequested: false, // Flag to see if user clicked before load
+        show: function() { 
+          if (!this._isInitialized) {
+            console.log('Chat not initialized. Queuing show request.');
+            this._showRequested = true;
+          } else {
+            // This function should have been replaced by the real one.
+            // If it's still being called, it indicates an issue with initialization.
+            console.error('Chat should be initialized, but the real show() function was not attached.');
+          }
+        },
+      };
+    </script>
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>
