@@ -12,11 +12,12 @@ import { NotificationProvider } from './context/NotificationContext';
 import Notification from './components/Notification';
 import TikTokIcon from './components/icons/TikTokIcon';
 import KwaiIcon from './components/icons/KwaiIcon';
-import ChatWidget from './components/ChatWidget';
 import HeadphoneIcon from './components/icons/HeadphoneIcon';
 import VideoIcon from './components/icons/VideoIcon';
 import CloseIcon from './components/icons/CloseIcon';
-import ChatIcon from './components/icons/ChatIcon';
+import GlobeIcon from './components/icons/GlobeIcon';
+import NewsTicker from './components/NewsTicker';
+import MusicNoteIcon from './components/icons/MusicNoteIcon';
 
 const App: React.FC = () => {
   const [playerMode, setPlayerMode] = useState<PlayerMode>(PlayerMode.AUDIO);
@@ -25,24 +26,20 @@ const App: React.FC = () => {
   const baseButtonClasses = "flex-shrink-0 flex items-center justify-center space-x-1 px-2.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900";
   
   const activeAudioButtonClasses = "bg-sky-600 text-white focus:ring-sky-500 shadow-lg shadow-sky-500/50";
+  const inactiveGenericButtonClasses = "bg-gray-700 text-gray-300 hover:bg-gray-600 focus:ring-gray-500";
+
   const activeVideoButtonClasses = "bg-red-600 text-white focus:ring-red-500 shadow-lg shadow-red-500/50";
-  const inactiveButtonClasses = "bg-gray-700 text-gray-300 hover:bg-gray-600 focus:ring-gray-500";
+  const inactiveVideoButtonClasses = "bg-red-900 text-red-200 hover:bg-red-800 focus:ring-red-600";
 
 
   const toggleSchedule = () => setIsScheduleVisible(prev => !prev);
-  
-  const toggleChat = () => {
-    // Calling our globally safe chat function.
-    // This completely avoids the race condition of the Tawk.to script loading,
-    // providing a definitive solution to the bug.
-    (window as any).R520_Chat.show();
-  };
 
 
   return (
     <NotificationProvider>
       <div className="flex flex-col min-h-screen text-white font-sans">
         <Header />
+        <NewsTicker />
         <main className="flex-grow flex flex-col items-center justify-center p-2 sm:p-4 lg:p-8 space-y-4 md:space-y-6">
           <div className="relative w-full max-w-xl lg:max-w-2xl xl:max-w-3xl bg-black rounded-xl shadow-2xl overflow-hidden aspect-video">
             {playerMode === PlayerMode.VIDEO ? <VideoPlayer /> : <AudioPlayer isScheduleVisible={isScheduleVisible} toggleSchedule={toggleSchedule} />}
@@ -51,25 +48,36 @@ const App: React.FC = () => {
           <div className="w-full flex flex-nowrap items-center justify-center gap-2 overflow-x-auto px-2 py-2 scrollbar-hide">
               <button
                 onClick={() => setPlayerMode(PlayerMode.AUDIO)}
-                className={`${baseButtonClasses} ${playerMode === PlayerMode.AUDIO ? activeAudioButtonClasses : inactiveButtonClasses}`}
+                className={`${baseButtonClasses} ${playerMode === PlayerMode.AUDIO ? activeAudioButtonClasses : inactiveGenericButtonClasses}`}
               >
                 <HeadphoneIcon className="w-4 h-4" />
                 <span><span className="hidden sm:inline">Ouvir </span>Rádio</span>
               </button>
                <button
                   onClick={() => setPlayerMode(PlayerMode.VIDEO)}
-                  className={`${baseButtonClasses} ${playerMode === PlayerMode.VIDEO ? activeVideoButtonClasses : inactiveButtonClasses}`}
+                  className={`${baseButtonClasses} ${playerMode === PlayerMode.VIDEO ? activeVideoButtonClasses : inactiveVideoButtonClasses}`}
                 >
                   <VideoIcon className="w-4 h-4" />
                   <span><span className="hidden sm:inline">Vídeo </span>ao Vivo</span>
                 </button>
-              <button
-                onClick={toggleChat}
+              <a
+                href="https://wa.me/5584999995200?text=Olá%20Rádio%20520!%20Gostaria%20de%20pedir%20uma%20música."
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`${baseButtonClasses} bg-pink-600 text-white hover:bg-pink-700 focus:ring-pink-500`}
+                >
+                <MusicNoteIcon className="w-4 h-4" />
+                <span><span className="hidden sm:inline">Peça sua </span>Música</span>
+              </a>
+              <a
+                href="https://www.radio520.com.br"
+                target="_blank"
+                rel="noopener noreferrer"
                 className={`${baseButtonClasses} bg-purple-600 text-white hover:bg-purple-700`}
               >
-                <ChatIcon className="w-4 h-4" />
-                <span><span className="hidden sm:inline">Chat </span>ao Vivo</span>
-              </button>
+                <GlobeIcon className="w-4 h-4" />
+                <span><span className="hidden sm:inline">Nosso </span>Site</span>
+              </a>
               <a
                 href="https://whatsapp.com/channel/0029Va6IguvCxoAuGyos6330"
                 target="_blank"
@@ -104,7 +112,6 @@ const App: React.FC = () => {
           </div>
           <p className="text-xs text-gray-500">&copy; 2024 Rádio 520. Todos os direitos reservados.</p>
         </footer>
-        <ChatWidget />
       </div>
       <Notification />
     </NotificationProvider>

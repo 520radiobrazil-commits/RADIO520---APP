@@ -2,27 +2,20 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNotification } from '../context/NotificationContext';
 
 const initialTickerItems = [
-  "VIVA MELHOR COM LU SKYLARK, DICAS PARA VIVER MELHOR E COM MAIS SAÚDE. TODOS OS DIAS NA SUA RÁDIO!",
-  "Brasil vence República Tcheca e se prepara para duelo histórico contra Sérvia no Mundial de Vôlei",
-  "Champions League Explosiva: As Estrelas que Podem Mudar Tudo na Rodada de Hoje!",
-  "A RÁDIO 520 TAMBÉM ESTÁ NA ALEXA! ATIVE A NOSSO SKILL NO APP",
-  "MEL GIBSON FALA SOBRE FÉ E REVELA DETALHES DE A RESSURREIÇÃO DE CRISTO EM ENTREVISTA A JOE ROGAN",
-  "DE SEGUNDA A SEXTA ÀS 18:00, TEM MIX 520 TOCANDO AS MELHORES DO PLANETA.",
-  " Mundial de Atletismo 2025: Brasil fatura medalha com Bonfim e segue forte nas provas",
-  "O Brasil está classificado para a fase qualificatória da Copa Davis 2026!",
-  "DE SEGUNDA A SEXTA ROLA O MIX 520 AO VIVO COM IMAGENS ",
+  "PEÇA SUA MÚSICA NO NOSSO WHATS APP OFICIAL",
+  "DOMINGO, AS OITO DA NOITE TEM ZONA MISTA. A RESENHA MAIS LEGAL E ORDINÁRIA DO RÁDIO MUNDIAL."
 ];
 
 // A pool of potential news items to simulate fetching new data
 const potentialNews = [
     "HUGO CALDEIRANO ESTREIA COM VITÓRIA EMOCIONANTE NO WTT CHAMPIONS DE MACAU",
-    "ANGE POSTECOGLOU ASSUME O NOTTINGHAM FOREST COM CONTRATO ATÉ 2027ANGE POSTECOGLOU ASSUME O NOTTINGHAM FOREST COM CONTRATO ATÉ 2027",
-    ,
+    "ANGE POSTECOGLOU ASSUME O NOTTINGHAM FOREST COM CONTRATO ATÉ 2027",
 ];
 
 // Simulates fetching a new item from an API
-const fetchNews = async (): Promise<string> => {
+const fetchNews = async (): Promise<string | null> => {
     await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
+    if (potentialNews.length === 0) return null;
     const randomIndex = Math.floor(Math.random() * potentialNews.length);
     return potentialNews[randomIndex];
 };
@@ -36,13 +29,15 @@ const NewsTicker: React.FC = () => {
         // Set up an interval to fetch news every 5 minutes
         const intervalId = setInterval(async () => {
             const newItem = await fetchNews();
-            setItems(currentItems => {
-                // Add the new item only if it's not already in the list
-                if (!currentItems.includes(newItem)) {
-                    return [...currentItems, newItem];
-                }
-                return currentItems;
-            });
+            if (newItem) {
+                setItems(currentItems => {
+                    // Add the new item only if it's not already in the list
+                    if (!currentItems.includes(newItem)) {
+                        return [...currentItems, newItem];
+                    }
+                    return currentItems;
+                });
+            }
         }, 5 * 60 * 1000); // 5 minutes in milliseconds
 
         // Cleanup function to clear the interval when the component unmounts
@@ -63,15 +58,15 @@ const NewsTicker: React.FC = () => {
     const animationDuration = `${items.join('').length / 5}s`; 
 
     return (
-        <div className="bg-black bg-opacity-50 py-2 border-y border-gray-700">
+        <div className="bg-gradient-to-r from-amber-500 via-orange-600 to-red-700 py-2 shadow-lg">
             <div className="marquee-container h-6">
                 <div
                     className="marquee-content"
                     style={{ animationDuration }}
                 >
-                    <span className="text-sm text-gray-300 font-medium tracking-wider">{tickerContent}</span>
+                    <span className="text-sm text-white font-bold tracking-wider">{tickerContent}</span>
                     {/* Duplicate content for a seamless loop */}
-                    <span className="text-sm text-gray-300 font-medium tracking-wider pl-16">{tickerContent}</span>
+                    <span className="text-sm text-white font-bold tracking-wider pl-16">{tickerContent}</span>
                 </div>
             </div>
         </div>
