@@ -3,7 +3,7 @@ import { PlayerMode } from './types';
 import Header from './components/Header';
 import VideoPlayer from './components/VideoPlayer';
 import AudioPlayer from './components/AudioPlayer';
-import WhatsAppIcon from './components/icons/WhatsAppIcon';
+import PodcastIcon from './components/icons/PodcastIcon';
 import NowPlaying from './components/NowPlaying';
 import InstagramIcon from './components/icons/InstagramIcon';
 import FacebookIcon from './components/icons/FacebookIcon';
@@ -17,18 +17,18 @@ import VideoIcon from './components/icons/VideoIcon';
 import CloseIcon from './components/icons/CloseIcon';
 import GlobeIcon from './components/icons/GlobeIcon';
 import NewsTicker from './components/NewsTicker';
-import MusicNoteIcon from './components/icons/MusicNoteIcon';
+import WhatsAppIcon from './components/icons/WhatsAppIcon';
 
 const App: React.FC = () => {
   const [playerMode, setPlayerMode] = useState<PlayerMode>(PlayerMode.AUDIO);
   const [isScheduleVisible, setIsScheduleVisible] = useState(false);
   // Botões compactos com texto responsivo para caber em uma linha.
-  const baseButtonClasses = "flex-shrink-0 flex items-center justify-center space-x-1 px-2.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900";
+  const baseButtonClasses = "flex-shrink-0 flex items-center justify-center space-x-1 px-2 py-1 rounded-full text-[11px] font-medium transition-all duration-300 ease-in-out transform hover:scale-105 shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900";
   
-  const activeAudioButtonClasses = "bg-sky-600 text-white focus:ring-sky-500 shadow-lg shadow-sky-500/50";
+  const activeAudioButtonClasses = "bg-sky-600 text-white focus:ring-sky-500 shadow-md shadow-sky-500/50";
   const inactiveGenericButtonClasses = "bg-gray-700 text-gray-300 hover:bg-gray-600 focus:ring-gray-500";
 
-  const activeVideoButtonClasses = "bg-red-600 text-white focus:ring-red-500 shadow-lg shadow-red-500/50";
+  const activeVideoButtonClasses = "bg-red-600 text-white focus:ring-red-500 shadow-md shadow-red-500/50";
   const inactiveVideoButtonClasses = "bg-red-900 text-red-200 hover:bg-red-800 focus:ring-red-600";
 
 
@@ -50,24 +50,24 @@ const App: React.FC = () => {
                 onClick={() => setPlayerMode(PlayerMode.AUDIO)}
                 className={`${baseButtonClasses} ${playerMode === PlayerMode.AUDIO ? activeAudioButtonClasses : inactiveGenericButtonClasses}`}
               >
-                <HeadphoneIcon className="w-4 h-4" />
-                <span><span className="hidden sm:inline">Ouvir </span>Rádio</span>
+                <HeadphoneIcon className="w-3.5 h-3.5" />
+                <span><span className="hidden sm:inline">Ouvir </span>RÁDIO</span>
               </button>
                <button
                   onClick={() => setPlayerMode(PlayerMode.VIDEO)}
                   className={`${baseButtonClasses} ${playerMode === PlayerMode.VIDEO ? activeVideoButtonClasses : inactiveVideoButtonClasses}`}
                 >
-                  <VideoIcon className="w-4 h-4" />
-                  <span><span className="hidden sm:inline">Vídeo </span>ao Vivo</span>
+                  <VideoIcon className="w-3.5 h-3.5" />
+                  <span><span className="hidden sm:inline">Vídeo </span>LIVE</span>
                 </button>
               <a
-                href="https://wa.me/5511988277967?text=Olá%20Rádio%20520!%20Gostaria%20de%20pedir%20uma%20música."
+                href="https://wa.me/5511988277967?text=Olá%20Rádio%20520!"
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`${baseButtonClasses} bg-pink-600 text-white hover:bg-pink-700 focus:ring-pink-500`}
+                className={`${baseButtonClasses} bg-green-600 text-white hover:bg-green-700 focus:ring-green-500`}
                 >
-                <MusicNoteIcon className="w-4 h-4" />
-                <span><span className="hidden sm:inline">Peça sua </span>Música</span>
+                <WhatsAppIcon className="w-3.5 h-3.5" />
+                <span>CHAT</span>
               </a>
               <a
                 href="https://www.radio520.com.br"
@@ -75,17 +75,17 @@ const App: React.FC = () => {
                 rel="noopener noreferrer"
                 className={`${baseButtonClasses} bg-purple-600 text-white hover:bg-purple-700`}
               >
-                <GlobeIcon className="w-4 h-4" />
-                <span><span className="hidden sm:inline">Nosso </span>Site</span>
+                <GlobeIcon className="w-3.5 h-3.5" />
+                <span><span className="hidden sm:inline">NOSSO </span>SITE</span>
               </a>
               <a
-                href="https://whatsapp.com/channel/0029Va6IguvCxoAuGyos6330"
+                href="https://public-rf-upload.minhawebradio.net/249695/ad/7ccbc06131a36460e3563faff0789c09.png"
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`${baseButtonClasses} bg-green-600 text-white hover:bg-green-700`}
+                className={`${baseButtonClasses} bg-indigo-600 text-white hover:bg-indigo-700`}
               >
-                <WhatsAppIcon className="w-4 h-4" />
-                <span><span className="hidden sm:inline">CENTRAL </span>520</span>
+                <PodcastIcon className="w-3.5 h-3.5" />
+                <span>PODCASTS</span>
               </a>
           </div>
 

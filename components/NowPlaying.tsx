@@ -390,7 +390,7 @@ const NowPlaying: React.FC<NowPlayingProps> = ({ isScheduleVisible, playerMode }
         <div className="relative text-center my-2 p-4 bg-black bg-opacity-30 rounded-lg w-full max-w-xl lg:max-w-2xl xl:max-w-3xl mx-auto shadow-lg transition-all duration-300">
             <div className="flex justify-around items-start">
                 <div className="w-1/2 pr-3">
-                    <p className="text-xs md:text-sm text-gray-400 uppercase tracking-wider">Você está ouvindo</p>
+                    <p className="text-xs md:text-sm text-gray-400 uppercase tracking-wider">AGORA, NA SUA RÁDIO!</p>
                     <div className="w-full bg-gray-800 rounded-full h-1.5 mt-2 mb-1 shadow-inner">
                         <div 
                             className="bg-red-500 h-1.5 rounded-full transition-all duration-1000 ease-linear"
