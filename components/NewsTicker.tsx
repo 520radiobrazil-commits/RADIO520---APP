@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNotification } from '../context/NotificationContext';
 
 const initialTickerItems = [
-  "PEÇA SUA MÚSICA NO NOSSO WHATS APP OFICIAL",
-  "DOMINGO, AS OITO DA NOITE TEM ZONA MISTA. A RESENHA MAIS LEGAL E ORDINÁRIA DO RÁDIO MUNDIAL."
+  "PEÇA SUA MÚSICA AGORA!",
+  "DOMINGO, AS OITO DA NOITE TEM ZONA MISTA. A RESENHA MAIS LEGAL E ORDINÁRIA DO RÁDIO MUNDIAL.",
+  "FIQUE POR DENTRO DE TODAS AS NOTÍCIAS, BASTIDORES E CURIOSIDADES DA COPA DO MUNDO DA FIFA 2026 NO MINUTO DA COPA, TODOS OS DIAS AQUI NA SUA RÁDIO!"
 ];
 
 // A pool of potential news items to simulate fetching new data
