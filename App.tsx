@@ -79,7 +79,7 @@ const App: React.FC = () => {
                 <span><span className="hidden sm:inline">NOSSO </span>SITE</span>
               </a>
               <a
-                href="https://public-rf-upload.minhawebradio.net/249695/ad/7ccbc06131a36460e3563faff0789c09.png"
+                href="https://open.spotify.com/user/31bozpr55fnrgkm7yy7cctairaty?si=QSuJlrPKS9690cgtcpvKWQ"
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`${baseButtonClasses} bg-indigo-600 text-white hover:bg-indigo-700`}
