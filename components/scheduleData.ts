@@ -143,8 +143,8 @@ const scheduleSunday: Program[] = [
     { start: '14:10', end: '18:00', name: 'BR520' },
     { start: '18:00', end: '18:10', name: 'HORA DA AVE MARIA' },
     { start: '18:10', end: '20:00', name: 'A ERA DO ROCK' },
-    { start: '20:00', end: '20:10', name: 'MÚSICA DO DIA' },
-    { start: '20:10', end: '24:00', name: 'TOP BILLBOARD' },
+    { start: '20:00', end: '22:00', name: 'ZONA MISTA' },
+    { start: '22:00', end: '24:00', name: 'TOP BILLBOARD' },
 ];
 
 export const dailySchedules: Record<number, Program[]> = {

@@ -47,11 +47,11 @@ const getBrasiliaTimeInfo = (): { dayOfWeek: number, hours: number, minutes: num
     };
 };
 
-const getTop20Countdown = (): string => {
+const getZonaMistaCountdown = (): string => {
     const { dayOfWeek, hours, minutes, seconds, year, month, day } = getBrasiliaTimeInfo();
-    const targetDay = 4; // Thursday
+    const targetDay = 0; // Sunday
     const targetHour = 20;
-    const targetMinute = 10;
+    const targetMinute = 0;
 
     const nowInBrasiliaAsTimestamp = Date.UTC(year, month - 1, day, hours, minutes, seconds);
 
@@ -193,9 +193,9 @@ const createICSFile = (program: Program, isNextDay: boolean) => {
     document.body.removeChild(link);
 };
 
-const createTop20ICSFile = () => {
+const createZonaMistaICSFile = () => {
     const { dayOfWeek, hours, year, month, day } = getBrasiliaTimeInfo();
-    const targetDay = 4; // Thursday
+    const targetDay = 0; // Sunday
     const targetHour = 20;
 
     let targetDate = new Date(Date.UTC(year, month - 1, day));
@@ -207,7 +207,7 @@ const createTop20ICSFile = () => {
     
     targetDate.setUTCDate(targetDate.getUTCDate() + daysUntilTarget);
 
-    const program = { name: 'RÁDIO520 - TOP20', start: '20:10', end: '22:00' };
+    const program = { name: 'ZONA MISTA', start: '20:00', end: '22:00' };
     const [startHours, startMinutes] = program.start.split(':').map(Number);
     const [endHours, endMinutes] = program.end.split(':').map(Number);
 
@@ -218,9 +218,9 @@ const createTop20ICSFile = () => {
     const dtStart = formatDateForICS(startDate);
     const dtEnd = formatDateForICS(endDate);
     
-    const uid = `${dtStart}-top20@radio520.com.br`;
-    const summary = `RÁDIO520 - TOP20`;
-    const description = `Lembrete para ouvir RÁDIO520 - TOP20 na Rádio 520. Acesse: https://www.radio520.com.br`;
+    const uid = `${dtStart}-zonamista@radio520.com.br`;
+    const summary = `ZONA MISTA`;
+    const description = `Lembrete para ouvir ZONA MISTA na Rádio 520. Acesse: https://www.radio520.com.br`;
     const location = "Rádio 520";
 
     const icsContent = [
@@ -242,7 +242,7 @@ const createTop20ICSFile = () => {
     const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    const fileName = `lembrete-top20.ics`;
+    const fileName = `lembrete-zona-mista.ics`;
     link.setAttribute('download', fileName);
     document.body.appendChild(link);
     link.click();
@@ -292,7 +292,7 @@ const NowPlaying: React.FC<NowPlayingProps> = ({ isScheduleVisible, playerMode }
         schedule: [] as Program[],
         progress: 0,
     });
-    const [top20Countdown, setTop20Countdown] = useState('00:00:00');
+    const [zonaMistaCountdown, setZonaMistaCountdown] = useState('00:00:00');
     const [activeReminders, setActiveReminders] = useState<Set<string>>(new Set());
     const prevProgramNameRef = useRef<string | null>(null);
 
@@ -345,8 +345,8 @@ const NowPlaying: React.FC<NowPlayingProps> = ({ isScheduleVisible, playerMode }
                 }, 3000); // Delay notification slightly
             }
 
-            const top20Time = getTop20Countdown();
-            setTop20Countdown(top20Time);
+            const zonaMistaTime = getZonaMistaCountdown();
+            setZonaMistaCountdown(zonaMistaTime);
             
             const msUntilNextSecond = 1000 - new Date().getMilliseconds();
             timerId = window.setTimeout(updateSchedule, msUntilNextSecond);
@@ -374,17 +374,17 @@ const NowPlaying: React.FC<NowPlayingProps> = ({ isScheduleVisible, playerMode }
         }
     };
     
-    const handleTop20ReminderClick = () => {
-        createTop20ICSFile();
-        updateReminders('TOP20');
-        showNotification('Lembrete para "TOP20" criado!');
+    const handleZonaMistaReminderClick = () => {
+        createZonaMistaICSFile();
+        updateReminders('ZONA MISTA');
+        showNotification('Lembrete para "ZONA MISTA" criado!');
     };
 
-    const TOP20_ICON_URL = "https://public-rf-upload.minhawebradio.net/249695/ad/f5542304df7c895674e96ef46e946f20.png";
-    const [hours, minutes, seconds] = top20Countdown.split(':');
+    const ZONA_MISTA_ICON_URL = "https://public-rf-upload.minhawebradio.net/249695/ad/7ccbc06131a36460e3563faff0789c09.png";
+    const [hours, minutes, seconds] = zonaMistaCountdown.split(':');
 
     const isNextProgramReminderSet = programInfo.next?.name ? activeReminders.has(programInfo.next.name) : false;
-    const isTop20ReminderSet = activeReminders.has('TOP20');
+    const isZonaMistaReminderSet = activeReminders.has('ZONA MISTA');
 
     return (
         <div className="relative text-center my-2 p-4 bg-black bg-opacity-30 rounded-lg w-full max-w-xl lg:max-w-2xl xl:max-w-3xl mx-auto shadow-lg transition-all duration-300">
@@ -439,11 +439,11 @@ const NowPlaying: React.FC<NowPlayingProps> = ({ isScheduleVisible, playerMode }
             <div className="mt-3 pt-3 border-t border-gray-700 flex flex-col md:flex-row justify-around items-center gap-4 md:gap-8 px-2">
                 {/* Left Part: Image and Title */}
                 <div className="flex items-center gap-4 text-left">
-                    <img src={TOP20_ICON_URL} alt="RÁDIO520 - TOP20" className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full border-2 border-purple-500 shadow-lg object-contain p-2" />
+                    <img src={ZONA_MISTA_ICON_URL} alt="ZONA MISTA" className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full border-2 border-purple-500 shadow-lg object-contain p-2" />
                     <div>
                         <p className="text-sm font-bold text-purple-400 uppercase tracking-widest">Vem aí...</p>
-                        <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">RÁDIO520 - TOP20</h3>
-                        <p className="text-xs text-gray-400">Toda quinta, às 20:10.</p>
+                        <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">ZONA MISTA</h3>
+                        <p className="text-xs text-gray-400">Todo domingo, às 20:00.</p>
                     </div>
                 </div>
 
@@ -467,16 +467,16 @@ const NowPlaying: React.FC<NowPlayingProps> = ({ isScheduleVisible, playerMode }
                     </div>
                     <div className="flex items-center space-x-2">
                         <button
-                            onClick={handleTop20ReminderClick}
+                            onClick={handleZonaMistaReminderClick}
                             className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors duration-200 ${
-                                isTop20ReminderSet
+                                isZonaMistaReminderSet
                                 ? 'bg-orange-600 text-white cursor-default'
                                 : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white'
                             }`}
-                            aria-label="Criar lembrete para RÁDIO 520 TOP20"
+                            aria-label="Criar lembrete para ZONA MISTA"
                         >
                             <BellIcon className="w-4 h-4" />
-                            <span>{isTop20ReminderSet ? "Lembrete Criado" : "Criar Lembrete"}</span>
+                            <span>{isZonaMistaReminderSet ? "Lembrete Criado" : "Criar Lembrete"}</span>
                         </button>
                     </div>
                 </div>

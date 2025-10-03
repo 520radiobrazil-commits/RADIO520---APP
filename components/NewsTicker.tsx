@@ -8,8 +8,7 @@ const initialTickerItems = [
 
 // A pool of potential news items to simulate fetching new data
 const potentialNews = [
-    "HUGO CALDEIRANO ESTREIA COM VITÓRIA EMOCIONANTE NO WTT CHAMPIONS DE MACAU",
-    "ANGE POSTECOGLOU ASSUME O NOTTINGHAM FOREST COM CONTRATO ATÉ 2027",
+  
 ];
 
 // Simulates fetching a new item from an API
