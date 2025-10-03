@@ -61,7 +61,7 @@ const App: React.FC = () => {
                   <span><span className="hidden sm:inline">Vídeo </span>ao Vivo</span>
                 </button>
               <a
-                href="https://wa.me/5584999995200?text=Olá%20Rádio%20520!%20Gostaria%20de%20pedir%20uma%20música."
+                href="https://wa.me/5511988277967?text=Olá%20Rádio%20520!%20Gostaria%20de%20pedir%20uma%20música."
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`${baseButtonClasses} bg-pink-600 text-white hover:bg-pink-700 focus:ring-pink-500`}
