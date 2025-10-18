@@ -14,14 +14,12 @@ import TikTokIcon from './components/icons/TikTokIcon';
 import KwaiIcon from './components/icons/KwaiIcon';
 import HeadphoneIcon from './components/icons/HeadphoneIcon';
 import VideoIcon from './components/icons/VideoIcon';
-import CloseIcon from './components/icons/CloseIcon';
 import GlobeIcon from './components/icons/GlobeIcon';
 import NewsTicker from './components/NewsTicker';
 import WhatsAppIcon from './components/icons/WhatsAppIcon';
 
 const App: React.FC = () => {
   const [playerMode, setPlayerMode] = useState<PlayerMode>(PlayerMode.AUDIO);
-  const [isScheduleVisible, setIsScheduleVisible] = useState(false);
   // Botões compactos com texto responsivo para caber em uma linha.
   const baseButtonClasses = "flex-shrink-0 flex items-center justify-center space-x-1 px-2 py-1 rounded-full text-[11px] font-medium transition-all duration-300 ease-in-out transform hover:scale-105 shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900";
   
@@ -30,9 +28,6 @@ const App: React.FC = () => {
 
   const activeVideoButtonClasses = "bg-red-600 text-white focus:ring-red-500 shadow-md shadow-red-500/50";
   const inactiveVideoButtonClasses = "bg-red-900 text-red-200 hover:bg-red-800 focus:ring-red-600";
-
-
-  const toggleSchedule = () => setIsScheduleVisible(prev => !prev);
 
 
   return (
@@ -51,7 +46,7 @@ const App: React.FC = () => {
         <NewsTicker />
         <main className="flex-grow flex flex-col items-center justify-center p-2 sm:p-4 lg:p-8 space-y-4 md:space-y-6">
           <div className="relative w-full max-w-xl lg:max-w-2xl xl:max-w-3xl bg-black rounded-xl shadow-2xl overflow-hidden aspect-video">
-            {playerMode === PlayerMode.VIDEO ? <VideoPlayer /> : <AudioPlayer isScheduleVisible={isScheduleVisible} toggleSchedule={toggleSchedule} />}
+            {playerMode === PlayerMode.VIDEO ? <VideoPlayer /> : <AudioPlayer />}
           </div>
           
           <div className="w-full flex flex-nowrap items-center justify-center gap-2 overflow-x-auto px-2 py-2 scrollbar-hide">
@@ -98,7 +93,7 @@ const App: React.FC = () => {
               </a>
           </div>
 
-          <NowPlaying isScheduleVisible={isScheduleVisible} playerMode={playerMode} />
+          <NowPlaying playerMode={playerMode} />
 
         </main>
         <footer className="text-center p-3 sm:p-4 lg:p-6 text-gray-400">

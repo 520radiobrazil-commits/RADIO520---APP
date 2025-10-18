@@ -1,115 +1,18 @@
-// FIX: Corrected a typo in the import statement from `useState'` to `useState`. This resolves multiple 'Cannot find name' errors for React hooks.
 import React, { useState, useRef, useEffect } from 'react';
 import PlayIcon from './icons/PlayIcon';
 import PauseIcon from './icons/PauseIcon';
 import LoadingSpinner from './LoadingSpinner';
-import CloseIcon from './icons/CloseIcon';
-import LocalTime from './LocalTime';
+import InfoBar from './InfoBar';
 
 const AUDIO_STREAM_URL = "https://servidor40.brlogic.com:7054/live";
-const LOGO_URL = "https://public-rf-upload.minhawebradio.net/249695/ad/e4afe65bc29bd449a81737943a4e4091.png";
+const BACKGROUND_IMAGE_URL = "https://public-rf-upload.minhawebradio.net/249695/ad/e43dfc75b170b1d37316dc0dd84d50d1.png";
 
-const backgroundImages = [
-  'https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2', // Concert Crowd
-  'https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2', // Stage Lights
-  'https://images.pexels.com/photos/3945313/pexels-photo-3945313.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2', // Headphones
-  'https://images.pexels.com/photos/2263436/pexels-photo-2263436.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2', // Music Festival
-  'https://images.pexels.com/photos/995301/pexels-photo-995301.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2', // DJ Mixer
-  'https://images.pexels.com/photos/210922/pexels-photo-210922.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2', // Electric Guitar
-  'https://images.pexels.com/photos/3359734/pexels-photo-3359734.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'  // Vintage Radio
-];
 
-interface AudioPlayerProps {
-  isScheduleVisible: boolean;
-  toggleSchedule: () => void;
-}
-
-const AudioPlayer: React.FC<AudioPlayerProps> = ({ isScheduleVisible, toggleSchedule }) => {
+const AudioPlayer: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isScheduleButtonAnimatedVisible, setIsScheduleButtonAnimatedVisible] = useState(true);
   const audioRef = useRef<HTMLAudioElement>(null);
   
-  const [imagePool, setImagePool] = useState<string[]>([]);
-  const [targetImageIndex, setTargetImageIndex] = useState(0); 
-  const [visibleImageIndex, setVisibleImageIndex] = useState(0); 
-  const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
-
-  useEffect(() => {
-    let visibilityTimeout: number;
-
-    const initialTimeout = setTimeout(() => {
-        setIsScheduleButtonAnimatedVisible(false);
-    }, 30000); // Fica visível por 30 segundos inicialmente
-
-    const mainInterval = setInterval(() => {
-        setIsScheduleButtonAnimatedVisible(true);
-        
-        visibilityTimeout = window.setTimeout(() => {
-            setIsScheduleButtonAnimatedVisible(false);
-        }, 30000); // Reaparece e fica visível por 30 segundos
-
-    }, 3 * 60 * 1000); // A cada 3 minutos
-
-    return () => {
-        clearTimeout(initialTimeout);
-        clearInterval(mainInterval);
-        if (visibilityTimeout) {
-            clearTimeout(visibilityTimeout);
-        }
-    };
-  }, []);
-
-  useEffect(() => {
-    setImagePool(backgroundImages);
-    if (backgroundImages.length > 0) {
-        const initialIndex = Math.floor(Math.random() * backgroundImages.length);
-        setTargetImageIndex(initialIndex);
-    }
-  }, []);
-  
-  useEffect(() => {
-    if (imagePool.length === 0) return;
-
-    const currentImageSrc = imagePool[targetImageIndex];
-    if (currentImageSrc && !loadedImages.has(currentImageSrc)) {
-      const img = new Image();
-      img.src = currentImageSrc;
-      img.onload = () => {
-        setLoadedImages(prev => new Set(prev).add(currentImageSrc));
-        if (loadedImages.size === 0) {
-            setVisibleImageIndex(targetImageIndex);
-        }
-      };
-      img.onerror = () => {
-        console.error("Failed to load image:", currentImageSrc);
-      }
-    }
-  }, [targetImageIndex, imagePool, loadedImages]);
-
-  useEffect(() => {
-    if (imagePool.length <= 1) return;
-
-    const timer = setTimeout(() => {
-      let nextIndex;
-      do {
-        nextIndex = Math.floor(Math.random() * imagePool.length);
-      } while (nextIndex === visibleImageIndex);
-
-      setTargetImageIndex(nextIndex);
-    }, 10000);
-
-    return () => clearTimeout(timer);
-  }, [visibleImageIndex, imagePool]);
-
-  useEffect(() => {
-    const targetImageSrc = imagePool[targetImageIndex];
-    if (targetImageSrc && loadedImages.has(targetImageSrc)) {
-      setVisibleImageIndex(targetImageIndex);
-    }
-  }, [targetImageIndex, loadedImages, imagePool]);
-
-
   const togglePlayPause = () => {
     if (!audioRef.current?.src) {
         if (audioRef.current) {
@@ -140,101 +43,39 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ isScheduleVisible, toggleSche
 
   return (
     <div className="relative w-full h-full overflow-hidden bg-black flex items-center justify-center">
-        <div className="absolute inset-0 z-0">
-            {imagePool.map((src, index) => (
-                <div
-                    key={`${src}-${index}`}
-                    className={`absolute inset-0 w-full h-full bg-cover bg-center transition-opacity duration-[2000ms] ease-in-out ${index === visibleImageIndex ? 'kenburns' : ''}`}
-                    style={{
-                        backgroundImage: loadedImages.has(src) ? `url(${src})` : 'none',
-                        opacity: index === visibleImageIndex ? 1 : 0,
-                    }}
-                />
-            ))}
-        </div>
+        <div
+            className="absolute inset-0 z-0 w-full h-full bg-cover bg-center kenburns"
+            style={{
+                backgroundImage: `url(${BACKGROUND_IMAGE_URL})`,
+                animationPlayState: isPlaying ? 'running' : 'paused'
+            }}
+        />
 
-        <div className="absolute inset-0 bg-black bg-opacity-60 z-10"></div>
+        <div className="absolute inset-0 bg-black bg-opacity-50 z-10"></div>
         
         <div className={`absolute inset-0 z-30 transition-opacity duration-500 ease-in-out ${isLoading ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
             <LoadingSpinner />
         </div>
         
-        <div className={`absolute inset-0 z-20 transition-opacity duration-500 ease-in-out ${!isLoading ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-            <div className="relative w-full h-full flex items-center justify-center p-4">
-              {/* Grid layout for robust positioning */}
-              <div className="w-full max-w-xl grid grid-cols-[1fr_auto_1fr] items-center gap-4 transform -translate-y-4 sm:-translate-y-6">
-
-                {/* 1. Left Column: Play/Pause Button */}
-                <div className="flex justify-center">
-                  <button
-                    onClick={togglePlayPause}
-                    className="relative z-30 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-orange-600/50 backdrop-blur-sm text-white flex items-center justify-center shadow-lg transform transition-all duration-300 hover:scale-110 hover:bg-orange-500/70 focus:outline-none focus:ring-4 focus:ring-orange-500/50"
-                    aria-label={isPlaying ? 'Pausar' : 'Tocar'}
-                  >
-                    {!isPlaying && (
-                      <span className="absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75 animate-ping"></span>
-                    )}
-                    <span className="relative z-10">
-                      {isPlaying ? <PauseIcon className="w-4 h-4 sm:w-5 sm:h-5" /> : <PlayIcon className="w-4 h-4 sm:w-5 sm:h-5" />}
-                    </span>
-                  </button>
-                </div>
-
-                {/* 2. Center Column: Rotating Disc */}
-                <div className="flex justify-center">
-                  <div className="relative w-48 h-48 sm:w-56 sm:h-56">
-                    <div
-                      className="absolute inset-0 rounded-full bg-black/30 backdrop-blur-sm p-2 shadow-2xl border-2 border-white/20 flex items-center justify-center spin-slow"
-                      style={{ animationPlayState: isPlaying ? 'running' : 'paused' }}
-                    >
-                      <div
-                        className="w-full h-full rounded-full bg-contain bg-center bg-no-repeat"
-                        style={{ backgroundImage: `url(${LOGO_URL})` }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 3. Right Column is implicitly empty, providing balance */}
-                
-              </div>
+        <div className={`absolute inset-0 z-20 flex flex-col h-full transition-opacity duration-500 ease-in-out ${!isLoading ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+            
+            <div className="relative flex-grow flex items-center justify-center p-4">
+              <button
+                onClick={togglePlayPause}
+                className="relative z-30 w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-orange-600/50 backdrop-blur-sm text-white flex items-center justify-center shadow-lg transform transition-all duration-300 hover:scale-110 hover:bg-orange-500/70 focus:outline-none focus:ring-4 focus:ring-orange-500/50"
+                aria-label={isPlaying ? 'Pausar' : 'Tocar'}
+              >
+                {!isPlaying && (
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75 animate-ping"></span>
+                )}
+                <span className="relative z-10">
+                  {isPlaying ? <PauseIcon className="w-6 h-6 sm:w-8 sm:h-8" /> : <PlayIcon className="w-6 h-6 sm:w-8 sm:h-8" />}
+                </span>
+              </button>
             </div>
 
-            <div className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 z-30 flex items-center bg-gray-900/80 backdrop-blur-sm rounded-full shadow-lg overflow-hidden">
-                <div className={`flex items-center transition-all duration-700 ease-in-out ${isScheduleButtonAnimatedVisible ? 'max-w-40 opacity-100' : 'max-w-0 opacity-0'}`}>
-                    <button
-                        onClick={toggleSchedule}
-                        className={`flex items-center space-x-2 pl-3 pr-2 py-1.5 text-xs sm:text-sm font-bold uppercase tracking-widest transition-colors duration-300 focus:outline-none whitespace-nowrap ${
-                            isScheduleVisible
-                            ? 'bg-purple-600 text-white hover:bg-purple-700'
-                            : 'text-purple-400 hover:bg-gray-800 focus:bg-gray-800 text-glow-purple'
-                        }`}
-                        aria-label={isScheduleVisible ? "Fechar programação" : "Ver programação"}
-                        aria-expanded={isScheduleVisible}
-                    >
-                        {isScheduleVisible ? (
-                            <CloseIcon className="w-4 h-4" />
-                        ) : (
-                            <span className="relative flex h-3 w-3">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
-                            </span>
-                        )}
-                        <span className="pr-1">{isScheduleVisible ? "Fechar" : "Programação"}</span>
-                    </button>
-                    <div className="w-px h-4 bg-gray-600 self-center"></div>
-                </div>
-
-                <div className="flex items-center space-x-2 px-3 py-1.5 cursor-default" title="Você está ouvindo a transmissão ao vivo">
-                    <span className="relative flex h-3 w-3">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-                    </span>
-                    <p className="text-red-400 font-bold text-xs sm:text-sm uppercase tracking-widest text-glow">Ao Vivo</p>
-                </div>
-                
-                <div className="w-px h-4 bg-gray-600 self-center"></div>
-                <LocalTime />
+            <div className="flex-shrink-0 flex justify-center items-center pb-3 sm:pb-4">
+                <InfoBar />
             </div>
         </div>
         

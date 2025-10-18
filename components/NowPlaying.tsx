@@ -1,7 +1,5 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import BellIcon from './icons/BellIcon';
-import ScheduleDisplay from './ScheduleDisplay';
 import { Program, dailySchedules } from './scheduleData';
 import { useNotification } from '../context/NotificationContext';
 import ShareButton from './ShareButton';
@@ -278,11 +276,10 @@ const ScrollableText: React.FC<{text: string; className: string; threshold?: num
 };
 
 interface NowPlayingProps {
-    isScheduleVisible: boolean;
     playerMode: PlayerMode;
 }
 
-const NowPlaying: React.FC<NowPlayingProps> = ({ isScheduleVisible, playerMode }) => {
+const NowPlaying: React.FC<NowPlayingProps> = ({ playerMode }) => {
     const { showNotification } = useNotification();
     const [programInfo, setProgramInfo] = useState({
         current: { name: 'Carregando...' } as Program,
@@ -481,7 +478,6 @@ const NowPlaying: React.FC<NowPlayingProps> = ({ isScheduleVisible, playerMode }
                     </div>
                 </div>
             </div>
-            {isScheduleVisible && <ScheduleDisplay schedule={programInfo.schedule} currentProgramName={programInfo.current.name} currentProgramProgress={programInfo.progress} />}
         </div>
     );
 };

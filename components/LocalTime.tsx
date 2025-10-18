@@ -22,16 +22,16 @@ const LocalTime: React.FC = () => {
 
   return (
     <div
-      className="flex items-center space-x-2 px-3 py-1.5 cursor-default"
+      className="flex items-center space-x-1 px-2 py-1 cursor-default"
       aria-live="off"
       aria-label={`Hora local atual: ${formatTime(time)}`}
       title="Hora local"
     >
-      <span className="relative flex h-3 w-3">
+      <span className="relative flex h-2 w-2">
         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-        <span className="relative inline-flex rounded-full h-3 w-3 bg-cyan-500"></span>
+        <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
       </span>
-      <span className="font-mono text-xs sm:text-sm font-semibold text-white tracking-wider text-glow-cyan">
+      <span className="font-mono text-xs font-medium text-white text-glow-cyan">
         {formatTime(time)}
       </span>
     </div>
