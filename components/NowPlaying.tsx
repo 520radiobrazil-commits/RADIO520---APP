@@ -90,41 +90,54 @@ const ScrollableText: React.FC<ScrollableTextProps> = ({ text, className }) => {
     const textRef = useRef<HTMLSpanElement>(null);
     const [isOverflowing, setIsOverflowing] = useState(false);
 
+    // useLayoutEffect is critical to measure the DOM before the browser paints.
     useLayoutEffect(() => {
         const checkOverflow = () => {
             const container = containerRef.current;
             const textEl = textRef.current;
+            
+            // We must have both the container and the text element to perform a measurement.
             if (container && textEl) {
-                const isNowOverflowing = textEl.scrollWidth > container.clientWidth;
-                if (isNowOverflowing !== isOverflowing) {
-                   setIsOverflowing(isNowOverflowing);
+                const hasOverflow = textEl.scrollWidth > container.clientWidth;
+                
+                // Only update state if the overflow status has actually changed.
+                // This is the key to preventing an infinite render loop.
+                if (hasOverflow !== isOverflowing) {
+                    setIsOverflowing(hasOverflow);
                 }
             }
         };
 
         checkOverflow();
-        window.addEventListener('resize', checkOverflow);
-        
-        return () => {
-            window.removeEventListener('resize', checkOverflow);
-        }
-    }, [text, isOverflowing]);
 
-    if (isOverflowing) {
-        const animationDuration = `${text.length / 5}s`;
-        return (
-            <div className={`marquee-container ${className}`}>
-                <div className="marquee-content" style={{ animationDuration }}>
+        window.addEventListener('resize', checkOverflow);
+        return () => window.removeEventListener('resize', checkOverflow);
+
+    // This effect MUST re-run when the text changes (to re-measure).
+    // The isOverflowing dependency was causing a re-render loop and was removed.
+    }, [text]);
+
+    // The component's structure is now consistent to avoid layout flickers.
+    // We always render the container and the hidden measurement span.
+    return (
+        <div ref={containerRef} className={`relative whitespace-nowrap overflow-hidden ${className}`}>
+            
+            {/* This span is ONLY for measurement. It's always rendered, never visible, and its ref is stable. */}
+            <span ref={textRef} className="invisible absolute whitespace-nowrap -z-10">{text}</span>
+            
+            {isOverflowing ? (
+                // If overflowing, render the animated marquee.
+                <div 
+                    className="marquee-content" 
+                    style={{ animationDuration: `${text.length / 5}s` }}
+                >
                     <span className="pr-16">{text}</span>
                     <span>{text}</span>
                 </div>
-            </div>
-        );
-    }
-
-    return (
-        <div ref={containerRef} className={`truncate ${className}`}>
-            <span ref={textRef}>{text}</span>
+            ) : (
+                // If not overflowing, render the static text.
+                <span>{text}</span>
+            )}
         </div>
     );
 };
@@ -133,6 +146,7 @@ const ScrollableText: React.FC<ScrollableTextProps> = ({ text, className }) => {
 const NowPlaying: React.FC<{ playerMode: PlayerMode }> = ({ playerMode }) => {
     const [currentProgram, setCurrentProgram] = useState<Program>({ start: '', end: '', name: 'Carregando...', subtitle: 'Sintonizando a programação...' });
     const [upNextProgram, setUpNextProgram] = useState<Program | null>(null);
+    const [featuredProgram, setFeaturedProgram] = useState<(Program & { day: string }) | null>(null);
     const { showNotification } = useNotification();
     const [reminders, setReminders] = useState<string[]>(() => {
         try {
@@ -147,6 +161,13 @@ const NowPlaying: React.FC<{ playerMode: PlayerMode }> = ({ playerMode }) => {
     useEffect(() => {
         localStorage.setItem('radio520_reminders', JSON.stringify(reminders));
     }, [reminders]);
+
+    useEffect(() => {
+        const zonaMista = dailySchedules[0].find(p => p.name === 'ZONA MISTA');
+        if (zonaMista) {
+            setFeaturedProgram({ ...zonaMista, day: 'Domingo' });
+        }
+    }, []);
 
     useEffect(() => {
         const updateSchedule = () => {
@@ -189,12 +210,19 @@ const NowPlaying: React.FC<{ playerMode: PlayerMode }> = ({ playerMode }) => {
     }, []);
 
     useEffect(() => {
-        if (upNextProgram?.name === 'ZONA MISTA') {
-            const timer = setInterval(() => {
-                setCountdown(getZonaMistaCountdown());
-            }, 1000);
-            return () => clearInterval(timer);
+        if (upNextProgram?.name !== 'ZONA MISTA') {
+            setCountdown('');
+            return; // Exit early if it's not the featured show
         }
+
+        const updateCountdown = () => {
+            setCountdown(getZonaMistaCountdown());
+        };
+
+        updateCountdown(); // Set immediately
+        const timer = setInterval(updateCountdown, 1000);
+
+        return () => clearInterval(timer);
     }, [upNextProgram]);
 
     const toggleReminder = (programName: string) => {
@@ -214,12 +242,21 @@ const NowPlaying: React.FC<{ playerMode: PlayerMode }> = ({ playerMode }) => {
         <div className="w-full flex flex-col items-center space-y-2 p-4 rounded-xl bg-gray-900 bg-opacity-40 backdrop-blur-sm border border-gray-700/50 shadow-lg">
             
             <div className="w-full">
-                <div className="flex items-center text-red-400">
-                    <span className="relative flex h-2 w-2 mr-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-                    </span>
-                    <p className="font-semibold text-xs uppercase tracking-wider text-glow">Tocando Agora</p>
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center text-red-400">
+                        <span className="relative flex h-2 w-2 mr-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                        </span>
+                        <p className="font-semibold text-xs uppercase tracking-wider text-glow">Tocando Agora</p>
+                    </div>
+                    {currentProgram.start && currentProgram.end && (
+                        <div className="bg-red-600 text-white px-2 py-0.5 rounded">
+                            <p className="font-mono text-xs" title="Horário do programa">
+                                {currentProgram.start} - {currentProgram.end === '24:00' ? '00:00' : currentProgram.end}
+                            </p>
+                        </div>
+                    )}
                 </div>
                 <div className="flex items-center">
                     <div className="flex-grow min-w-0">
@@ -231,35 +268,95 @@ const NowPlaying: React.FC<{ playerMode: PlayerMode }> = ({ playerMode }) => {
                     <ShareButton programName={currentProgram.name} />
                 </div>
             </div>
-            
-            {upNextProgram?.name === 'ZONA MISTA' && countdown && (
-                <div className="w-full text-center py-1">
-                    <p className="text-sm text-cyan-300 animate-fade-in">ZONA MISTA começa em: <span className="font-mono font-bold tracking-wider">{countdown}</span></p>
-                </div>
-            )}
+
+            <div className="w-full h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent my-1"></div>
 
             {upNextProgram && (
-                <>
-                    <div className="w-full h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent my-1"></div>
-                    <div className="mt-2 flex items-center w-full">
-                        <div className="flex-shrink-0 mr-3">
-                            <button
+                upNextProgram.name === 'ZONA MISTA' && countdown ? (
+                <div className="w-full p-3 rounded-lg bg-yellow-400 text-gray-900 shadow-lg animate-fade-in">
+                    <p className="text-xs font-bold uppercase tracking-wider text-yellow-800">A Seguir: Vem Aí!</p>
+                    <div className="flex items-center justify-between mt-1">
+                        <div className="flex-grow min-w-0">
+                            <ScrollableText text={upNextProgram.name} className="font-bold text-lg" />
+                             {upNextProgram.subtitle && (
+                                <ScrollableText text={upNextProgram.subtitle} className="text-sm text-gray-800" />
+                            )}
+                            <p className="font-mono text-sm tracking-wider text-yellow-900 mt-1">
+                                Começa em: <span className="font-bold">{countdown}</span>
+                            </p>
+                        </div>
+                        <div className="flex items-center space-x-2 pl-2">
+                             <button
                                 onClick={() => toggleReminder(upNextProgram.name)}
-                                className={`p-1.5 rounded-full transition-all duration-300 ${reminders.includes(upNextProgram.name) ? 'bg-yellow-400 text-gray-900 ring-2 ring-offset-2 ring-offset-gray-800 ring-yellow-400' : 'bg-gray-700 text-gray-400 hover:bg-gray-600 hover:text-white'}`}
+                                className={`p-2 rounded-full transition-all duration-300 ${reminders.includes(upNextProgram.name) ? 'bg-yellow-600 text-white ring-2 ring-offset-2 ring-offset-yellow-400 ring-yellow-600' : 'bg-yellow-500 text-gray-800 hover:bg-yellow-600'}`}
                                 title={reminders.includes(upNextProgram.name) ? 'Remover lembrete' : 'Lembrar-me'}
-                                aria-label={reminders.includes(upNextProgram.name) ? `Remover lembrete para ${upNextProgram.name}` : `Definir lembrete para ${upNextProgram.name}`}
                             >
                                 <BellIcon className="w-6 h-6" />
                             </button>
+                            <ShareButton programName={upNextProgram.name} />
                         </div>
-                        <div className="flex-grow min-w-0">
-                            <p className="text-xs text-gray-400 uppercase tracking-wider">A Seguir</p>
-                            <ScrollableText text={upNextProgram.name} className="font-semibold text-gray-200" />
-                            {upNextProgram.subtitle && (
-                                <ScrollableText text={upNextProgram.subtitle} className="text-xs text-gray-400" />
-                            )}
+                    </div>
+                </div>
+                ) : (
+                <div className="flex items-center w-full">
+                    <div className="flex-shrink-0 mr-3">
+                        <button
+                            onClick={() => toggleReminder(upNextProgram.name)}
+                            className={`p-1.5 rounded-full transition-all duration-300 ${reminders.includes(upNextProgram.name) ? 'bg-yellow-400 text-gray-900 ring-2 ring-offset-2 ring-offset-gray-800 ring-yellow-400' : 'bg-gray-700 text-gray-400 hover:bg-gray-600 hover:text-white'}`}
+                            title={reminders.includes(upNextProgram.name) ? 'Remover lembrete' : 'Lembrar-me'}
+                            aria-label={reminders.includes(upNextProgram.name) ? `Remover lembrete para ${upNextProgram.name}` : `Definir lembrete para ${upNextProgram.name}`}
+                        >
+                            <BellIcon className="w-6 h-6" />
+                        </button>
+                    </div>
+                    <div className="flex-grow min-w-0">
+                        <p className="text-xs text-gray-400 uppercase tracking-wider">A Seguir</p>
+                        <ScrollableText text={upNextProgram.name} className="font-semibold text-gray-200" />
+                        {upNextProgram.subtitle && (
+                            <ScrollableText text={upNextProgram.subtitle} className="text-xs text-gray-400" />
+                        )}
+                    </div>
+                    <div className="flex items-center space-x-2 pl-2">
+                        <div className="text-right">
+                            <p className="font-semibold text-white">{upNextProgram.start}</p>
                         </div>
                         <ShareButton programName={upNextProgram.name} />
+                    </div>
+                </div>
+                )
+            )}
+            
+            {/* VEM AÍ Section */}
+            {featuredProgram && upNextProgram?.name !== featuredProgram.name && (
+                <>
+                    <div className="w-full h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent my-1"></div>
+                    <div className="w-full p-3 rounded-lg bg-gray-800/30 border border-purple-500/30 animate-fade-in shadow-md">
+                        <div className="flex items-center w-full">
+                            <div className="flex-shrink-0 mr-3">
+                                <button
+                                    onClick={() => toggleReminder(featuredProgram.name)}
+                                    className={`p-1.5 rounded-full transition-all duration-300 ${reminders.includes(featuredProgram.name) ? 'bg-yellow-400 text-gray-900 ring-2 ring-offset-2 ring-offset-gray-800 ring-yellow-400' : 'bg-gray-700 text-gray-400 hover:bg-gray-600 hover:text-white'}`}
+                                    title={reminders.includes(featuredProgram.name) ? 'Remover lembrete' : 'Lembrar-me'}
+                                    aria-label={reminders.includes(featuredProgram.name) ? `Remover lembrete para ${featuredProgram.name}` : `Definir lembrete para ${featuredProgram.name}`}
+                                >
+                                    <BellIcon className="w-6 h-6" />
+                                </button>
+                            </div>
+                            <div className="flex-grow min-w-0">
+                                <p className="text-xs font-bold uppercase tracking-wider text-purple-400 text-glow-purple">Vem Aí</p>
+                                <ScrollableText text={featuredProgram.name} className="font-bold text-lg text-white" />
+                                {featuredProgram.subtitle && (
+                                    <ScrollableText text={featuredProgram.subtitle} className="text-sm text-gray-300" />
+                                )}
+                            </div>
+                            <div className="flex items-center space-x-2 pl-2">
+                                <div className="text-right">
+                                    <p className="font-semibold text-white">{featuredProgram.start}</p>
+                                    <p className="text-xs text-gray-400">{featuredProgram.day}</p>
+                                </div>
+                                <ShareButton programName={featuredProgram.name} />
+                            </div>
+                        </div>
                     </div>
                 </>
             )}

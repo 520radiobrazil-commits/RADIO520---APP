@@ -15,8 +15,8 @@ import KwaiIcon from './components/icons/KwaiIcon';
 import HeadphoneIcon from './components/icons/HeadphoneIcon';
 import VideoIcon from './components/icons/VideoIcon';
 import GlobeIcon from './components/icons/GlobeIcon';
-import NewsTicker from './components/NewsTicker';
 import WhatsAppIcon from './components/icons/WhatsAppIcon';
+import BannerCarousel from './components/BannerCarousel';
 
 const App: React.FC = () => {
   const [playerMode, setPlayerMode] = useState<PlayerMode>(PlayerMode.AUDIO);
@@ -34,22 +34,15 @@ const App: React.FC = () => {
     <NotificationProvider>
       <div className="flex flex-col min-h-screen text-white font-sans">
         <Header />
-        <div className="flex justify-center py-2 sm:py-3 bg-black bg-opacity-10">
-          <a href="https://radio520.webradiosite.com/pagina/3177862/popnews/" target="_blank" rel="noopener noreferrer">
-            <img 
-              src="https://public-rf-upload.minhawebradio.net/249695/ad/9a12d0c1f1200dfdd0595d8d0ac85ced.jpg" 
-              alt="Banner Promocional" 
-              className="w-full max-w-4xl rounded-md shadow-lg transition-transform duration-300 hover:scale-[1.02]"
-            />
-          </a>
-        </div>
-        <NewsTicker />
         <main className="flex-grow flex flex-col items-center justify-center p-2 sm:p-4 lg:p-8 space-y-4 md:space-y-6">
+          <div className="w-full max-w-xl lg:max-w-2xl xl:max-w-3xl">
+              <BannerCarousel />
+          </div>
           <div className="relative w-full max-w-xl lg:max-w-2xl xl:max-w-3xl bg-black rounded-xl shadow-2xl overflow-hidden aspect-video">
             {playerMode === PlayerMode.VIDEO ? <VideoPlayer /> : <AudioPlayer />}
           </div>
           
-          <div className="w-full max-w-xl lg:max-w-2xl xl:max-w-3xl flex flex-col items-center gap-2">
+          <div className="w-full max-w-xl lg:max-w-2xl xl:max-w-3xl flex flex-col items-center gap-4">
             <div className="w-full flex flex-nowrap items-center justify-center gap-2 overflow-x-auto px-2 py-2 scrollbar-hide">
                 <button
                   onClick={() => setPlayerMode(PlayerMode.AUDIO)}
@@ -93,7 +86,7 @@ const App: React.FC = () => {
                   <span>PODCASTS</span>
                 </a>
             </div>
-
+            
             <NowPlaying playerMode={playerMode} />
           </div>
 

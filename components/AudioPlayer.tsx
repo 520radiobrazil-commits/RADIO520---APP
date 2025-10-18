@@ -3,6 +3,7 @@ import PlayIcon from './icons/PlayIcon';
 import PauseIcon from './icons/PauseIcon';
 import LoadingSpinner from './LoadingSpinner';
 import InfoBar from './InfoBar';
+import NewsTicker from './NewsTicker';
 
 const AUDIO_STREAM_URL = "https://servidor40.brlogic.com:7054/live";
 const BACKGROUND_IMAGE_URL = "https://public-rf-upload.minhawebradio.net/249695/ad/e43dfc75b170b1d37316dc0dd84d50d1.png";
@@ -58,6 +59,9 @@ const AudioPlayer: React.FC = () => {
         </div>
         
         <div className={`absolute inset-0 z-20 flex flex-col h-full transition-opacity duration-500 ease-in-out ${!isLoading ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+            <div className="flex-shrink-0">
+                <NewsTicker />
+            </div>
             
             <div className="relative flex-grow flex items-center justify-center p-4">
               <button
@@ -74,7 +78,7 @@ const AudioPlayer: React.FC = () => {
               </button>
             </div>
 
-            <div className="flex-shrink-0 flex justify-center items-center pb-3 sm:pb-4">
+            <div className="flex-shrink-0">
                 <InfoBar />
             </div>
         </div>

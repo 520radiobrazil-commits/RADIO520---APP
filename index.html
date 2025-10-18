@@ -214,6 +214,46 @@
         -webkit-animation: fade-in 0.5s ease-in-out forwards;
         animation: fade-in 0.5s ease-in-out forwards;
       }
+      
+      /* New animations for alert icons */
+      @-webkit-keyframes rain-drop {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(2px); }
+      }
+      @keyframes rain-drop {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(2px); }
+      }
+      .animate-rain-drop {
+        -webkit-animation: rain-drop 1.5s ease-in-out infinite;
+        animation: rain-drop 1.5s ease-in-out infinite;
+      }
+
+      @-webkit-keyframes uv-glow {
+        0%, 100% { filter: drop-shadow(0 0 2px currentColor); }
+        50% { filter: drop-shadow(0 0 6px currentColor); }
+      }
+      @keyframes uv-glow {
+        0%, 100% { filter: drop-shadow(0 0 2px currentColor); }
+        50% { filter: drop-shadow(0 0 6px currentColor); }
+      }
+      .animate-uv-glow {
+        -webkit-animation: uv-glow 2.5s ease-in-out infinite;
+        animation: uv-glow 2.5s ease-in-out infinite;
+      }
+
+      @-webkit-keyframes warning-pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+      }
+      @keyframes warning-pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+      }
+      .animate-warning-pulse {
+        -webkit-animation: warning-pulse 1.5s ease-in-out infinite;
+        animation: warning-pulse 1.5s ease-in-out infinite;
+      }
     </style>
   <script type="importmap">
 {

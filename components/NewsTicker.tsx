@@ -58,15 +58,15 @@ const NewsTicker: React.FC = () => {
     const animationDuration = `${items.join('').length / 5}s`; 
 
     return (
-        <div className="bg-gradient-to-r from-amber-500 via-orange-600 to-red-700 py-2 shadow-lg">
-            <div className="marquee-container h-6">
+        <div className="w-full bg-black/30 backdrop-blur-sm py-1 overflow-hidden">
+            <div className="marquee-container h-4 flex items-center">
                 <div
                     className="marquee-content"
                     style={{ animationDuration }}
                 >
-                    <span className="text-sm text-white font-bold tracking-wider">{tickerContent}</span>
+                    <span className="text-xs text-cyan-300 font-mono font-medium tracking-wider text-glow-cyan">{tickerContent}</span>
                     {/* Duplicate content for a seamless loop */}
-                    <span className="text-sm text-white font-bold tracking-wider pl-16">{tickerContent}</span>
+                    <span className="text-xs text-cyan-300 font-mono font-medium tracking-wider text-glow-cyan pl-16">{tickerContent}</span>
                 </div>
             </div>
         </div>

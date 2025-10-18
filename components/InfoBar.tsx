@@ -1,73 +1,113 @@
 import React, { useState, useEffect } from 'react';
 import LocalTime from './LocalTime';
 import WeatherDisplay from './WeatherDisplay';
-import useWeather from '../hooks/useWeather';
+import useWeather, { WeatherData } from '../hooks/useWeather';
 import WarningIcon from './icons/WarningIcon';
 import LocationMarkerIcon from './icons/LocationMarkerIcon';
+import GlobeIcon from './icons/GlobeIcon';
 
-const InfoBar: React.FC = () => {
-    const { weather } = useWeather();
-    const [displayingAlert, setDisplayingAlert] = useState(true);
-    const [isAlertBarVisible, setIsAlertBarVisible] = useState(false);
+interface TickerMessage {
+    text: string;
+    type: 'alert' | 'location' | 'site';
+}
+
+interface LocationAlertTickerProps {
+  weather: WeatherData | null;
+  isLoading: boolean;
+}
+
+// Component for the animated second line that cycles between location and alerts/site
+const LocationAlertTicker: React.FC<LocationAlertTickerProps> = ({ weather, isLoading }) => {
+    const [messages, setMessages] = useState<TickerMessage[]>([]);
+    const [currentIndex, setCurrentIndex] = useState(0);
 
     useEffect(() => {
-        let timer: number;
-        if (weather?.alert) {
-            // Delay showing the alert bar to prevent jarring layout shifts on load
-            timer = window.setTimeout(() => setIsAlertBarVisible(true), 500);
-        } else {
-            setIsAlertBarVisible(false);
+        if (isLoading || !weather) {
+            setMessages([]);
+            return;
         }
-        return () => clearTimeout(timer);
-    }, [weather?.alert]);
 
-    useEffect(() => {
-        if (isAlertBarVisible) {
-            const interval = setInterval(() => {
-                setDisplayingAlert(prev => !prev);
-            }, 4000); // Switch every 4 seconds
-
-            return () => clearInterval(interval);
+        const newMessages: TickerMessage[] = [];
+        
+        // Add alert if it exists
+        if (weather.alert) {
+            newMessages.push({ text: weather.alert, type: 'alert' });
         }
-    }, [isAlertBarVisible]);
+
+        // Always add the radio's website
+        newMessages.push({ text: 'www.radio520.com.br', type: 'site' });
+
+        // Add location if it exists
+        if (weather.locationName) {
+            newMessages.push({ text: weather.locationName, type: 'location' });
+        }
+
+        setMessages(newMessages);
+        setCurrentIndex(0); // Reset index when messages change
+    }, [weather, isLoading]);
     
-    // Reset the display to the alert when the bar becomes visible
     useEffect(() => {
-      if (isAlertBarVisible) {
-        setDisplayingAlert(true);
-      }
-    }, [isAlertBarVisible]);
+        if (messages.length <= 1) return;
+        const interval = setInterval(() => {
+            setCurrentIndex(prev => (prev + 1) % messages.length);
+        }, 4000); // Change message every 4 seconds
+        return () => clearInterval(interval);
+    }, [messages]);
 
-    const alertContent = (
-        <div key={displayingAlert ? 'alert' : 'location'} className="animate-fade-in flex items-center justify-center">
-            {displayingAlert && weather?.alert ? (
-                <>
-                    <WarningIcon className="w-4 h-4 mr-2 flex-shrink-0 text-yellow-300" />
-                    <span className="text-xs font-semibold tracking-wider text-yellow-300">{weather.alert}</span>
-                </>
-            ) : (
-                <>
-                    <LocationMarkerIcon className="w-4 h-4 mr-2 flex-shrink-0 text-sky-400" />
-                    <span className="text-xs font-semibold tracking-wider text-sky-300">{weather?.locationName}</span>
-                </>
-            )}
-        </div>
-    );
+    if (isLoading || messages.length === 0) {
+        return <div className="h-6"></div>; // Keep space consistent
+    }
+
+    const currentItem = messages[currentIndex];
+
+    const renderIcon = () => {
+        switch (currentItem.type) {
+            case 'alert':
+                return <WarningIcon className="w-3.5 h-3.5 flex-shrink-0 text-yellow-300" />;
+            case 'location':
+                return <LocationMarkerIcon className="w-3.5 h-3.5 flex-shrink-0 text-sky-300" />;
+            case 'site':
+                return <GlobeIcon className="w-3.5 h-3.5 flex-shrink-0 text-purple-300" />;
+            default:
+                return null;
+        }
+    };
+
+    const getTextStyle = () => {
+        switch (currentItem.type) {
+            case 'alert':
+                return 'text-yellow-300';
+            case 'location':
+                return 'text-sky-300';
+            case 'site':
+                return 'text-purple-300';
+            default:
+                return 'text-gray-300';
+        }
+    };
 
     return (
-        <div className={`bg-gray-900/80 backdrop-blur-sm shadow-lg transition-all duration-500 ease-in-out ${isAlertBarVisible ? 'rounded-xl' : 'rounded-full'}`}>
-            <div className="flex items-center p-1">
-                <LocalTime />
-                <div className="w-px h-6 bg-gray-600"></div>
-                <WeatherDisplay />
+        <div className="w-full bg-black/30 backdrop-blur-sm py-1 overflow-hidden h-6 flex items-center justify-center">
+            <div key={currentIndex} className="flex items-center space-x-1.5 animate-fade-in">
+                {renderIcon()}
+                <span className={`font-mono text-xs font-medium text-center ${getTextStyle()}`}>
+                    {currentItem.text}
+                </span>
             </div>
-            {isAlertBarVisible && (
-                 <div className="border-t border-gray-700/50 mx-3 mb-1 overflow-hidden">
-                    <div className="h-5 flex items-center justify-center">
-                       {alertContent}
-                    </div>
-                </div>
-            )}
+        </div>
+    );
+};
+
+
+const InfoBar: React.FC = () => {
+    const { weather, isLoading, error } = useWeather();
+    return (
+        <div className="w-full bg-gray-900/80 backdrop-blur-sm">
+            <div className="flex items-center justify-between px-4 py-1.5">
+                <LocalTime />
+                <WeatherDisplay weather={weather} isLoading={isLoading} error={error} />
+            </div>
+            <LocationAlertTicker weather={weather} isLoading={isLoading} />
         </div>
     );
 };
