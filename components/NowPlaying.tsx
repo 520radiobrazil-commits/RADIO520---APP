@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import BellIcon from './icons/BellIcon';
 import { Program, dailySchedules } from './scheduleData';
 import { useNotification } from '../context/NotificationContext';
@@ -73,411 +73,196 @@ const getZonaMistaCountdown = (): string => {
     const countdownHours = Math.floor(remainingSeconds / 3600);
     const countdownMinutes = Math.floor((remainingSeconds % 3600) / 60);
     const countdownSeconds = remainingSeconds % 60;
-    
-    return `${String(countdownHours).padStart(2, '0')}:${String(countdownMinutes).padStart(2, '0')}:${String(countdownSeconds).padStart(2, '0')}`;
+
+    const pad = (num: number) => num.toString().padStart(2, '0');
+
+    return `${pad(countdownHours)}:${pad(countdownMinutes)}:${pad(countdownSeconds)}`;
 };
 
-const getProgramScheduleInfo = () => {
-    const { dayOfWeek, hours, minutes, seconds } = getBrasiliaTimeInfo();
-    const schedule = dailySchedules[dayOfWeek] || [];
 
-    const currentTimeInSeconds = hours * 3600 + minutes * 60 + seconds;
+interface ScrollableTextProps {
+    text: string;
+    className?: string;
+}
 
-    let currentProgram: Program = { name: 'Música na 520', start: '', end: '', };
-    let currentIndex = -1;
-    let progressPercentage = 0;
+const ScrollableText: React.FC<ScrollableTextProps> = ({ text, className }) => {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const textRef = useRef<HTMLSpanElement>(null);
+    const [isOverflowing, setIsOverflowing] = useState(false);
 
-    for (let i = 0; i < schedule.length; i++) {
-        const item = schedule[i];
-        const startSeconds = timeToMinutes(item.start) * 60;
-        const endSeconds = item.end === '24:00' ? 86400 : timeToMinutes(item.end) * 60;
-
-        if (currentTimeInSeconds >= startSeconds && currentTimeInSeconds < endSeconds) {
-            currentProgram = item;
-            currentIndex = i;
-            
-            const totalDuration = endSeconds - startSeconds;
-            if (totalDuration > 0) {
-                const elapsedSeconds = currentTimeInSeconds - startSeconds;
-                progressPercentage = (elapsedSeconds / totalDuration) * 100;
+    useLayoutEffect(() => {
+        const checkOverflow = () => {
+            const container = containerRef.current;
+            const textEl = textRef.current;
+            if (container && textEl) {
+                const isNowOverflowing = textEl.scrollWidth > container.clientWidth;
+                if (isNowOverflowing !== isOverflowing) {
+                   setIsOverflowing(isNowOverflowing);
+                }
             }
-            break; 
+        };
+
+        checkOverflow();
+        window.addEventListener('resize', checkOverflow);
+        
+        return () => {
+            window.removeEventListener('resize', checkOverflow);
         }
-    }
-    
-    let nextProgramIndex;
-    if (currentIndex !== -1) {
-        nextProgramIndex = (currentIndex + 1) % schedule.length;
-    } else {
-        const upcomingIndex = schedule.findIndex(item => (timeToMinutes(item.start) * 60) > currentTimeInSeconds);
-        nextProgramIndex = upcomingIndex !== -1 ? upcomingIndex : 0;
-    }
-    
-    const nextProgram = schedule[nextProgramIndex];
-    let nextProgramStartSeconds = timeToMinutes(nextProgram.start) * 60;
+    }, [text, isOverflowing]);
 
-    let remainingSeconds = nextProgramStartSeconds - currentTimeInSeconds;
-    const isNextDay = remainingSeconds < 0 || (currentIndex !== -1 && nextProgramIndex === 0 && currentIndex === schedule.length - 1);
-    if (isNextDay) {
-        remainingSeconds += 24 * 3600;
-    }
-    
-    const countdownHours = Math.floor(remainingSeconds / 3600);
-    const countdownMinutes = Math.floor((remainingSeconds % 3600) / 60);
-    const countdownSeconds = remainingSeconds % 60;
-
-    const countdown = `${String(countdownHours).padStart(2, '0')}:${String(countdownMinutes).padStart(2, '0')}:${String(countdownSeconds).padStart(2, '0')}`;
-
-    return {
-        current: currentProgram,
-        next: nextProgram,
-        countdown,
-        isNextDay,
-        schedule,
-        progress: Math.max(0, Math.min(100, progressPercentage)),
-    };
-};
-
-const formatDateForICS = (date: Date): string => {
-    return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-};
-
-const createICSFile = (program: Program, isNextDay: boolean) => {
-    const { year, month, day } = getBrasiliaTimeInfo();
-    
-    const eventDate = new Date(Date.UTC(year, month - 1, day));
-    if (isNextDay) {
-        eventDate.setUTCDate(eventDate.getUTCDate() + 1);
-    }
-
-    const [startHours, startMinutes] = program.start.split(':').map(Number);
-    const [endHours, endMinutes] = program.end === '24:00' ? [23, 59] : program.end.split(':').map(Number);
-
-    const startDate = new Date(Date.UTC(eventDate.getUTCFullYear(), eventDate.getUTCMonth(), eventDate.getUTCDate(), startHours, startMinutes));
-    const endDate = new Date(Date.UTC(eventDate.getUTCFullYear(), eventDate.getUTCMonth(), eventDate.getUTCDate(), endHours, endMinutes));
-    
-    const dtStamp = formatDateForICS(new Date());
-    const dtStart = formatDateForICS(startDate);
-    const dtEnd = formatDateForICS(endDate);
-    
-    const uid = `${dtStart}-${program.name.replace(/\s+/g, '')}@radio520.com.br`;
-    const summary = `${program.name}`;
-    const description = `Lembrete para ouvir ${program.name} na Rádio 520. Acesse: https://www.radio520.com.br`;
-    const location = "Rádio 520";
-
-    const icsContent = [
-        'BEGIN:VCALENDAR',
-        'VERSION:2.0',
-        'PRODID:-//Rádio 520//WebApp//PT',
-        'BEGIN:VEVENT',
-        `UID:${uid}`,
-        `DTSTAMP:${dtStamp}`,
-        `DTSTART;TZID=America/Sao_Paulo:${dtStart}`,
-        `DTEND;TZID=America/Sao_Paulo:${dtEnd}`,
-        `SUMMARY:${summary}`,
-        `DESCRIPTION:${description}`,
-        `LOCATION:${location}`,
-        'END:VEVENT',
-        'END:VCALENDAR'
-    ].join('\r\n');
-
-    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    const fileName = `lembrete-${program.name.toLowerCase().replace(/\s+/g, '-')}.ics`;
-    link.setAttribute('download', fileName);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-};
-
-const createZonaMistaICSFile = () => {
-    const { dayOfWeek, hours, year, month, day } = getBrasiliaTimeInfo();
-    const targetDay = 0; // Sunday
-    const targetHour = 20;
-
-    let targetDate = new Date(Date.UTC(year, month - 1, day));
-
-    let daysUntilTarget = (targetDay - dayOfWeek + 7) % 7;
-    if (daysUntilTarget === 0 && hours >= targetHour) {
-        daysUntilTarget = 7;
-    }
-    
-    targetDate.setUTCDate(targetDate.getUTCDate() + daysUntilTarget);
-
-    const program = { name: 'ZONA MISTA', start: '20:00', end: '22:00' };
-    const [startHours, startMinutes] = program.start.split(':').map(Number);
-    const [endHours, endMinutes] = program.end.split(':').map(Number);
-
-    const startDate = new Date(Date.UTC(targetDate.getUTCFullYear(), targetDate.getUTCMonth(), targetDate.getUTCDate(), startHours, startMinutes));
-    const endDate = new Date(Date.UTC(targetDate.getUTCFullYear(), targetDate.getUTCMonth(), targetDate.getUTCDate(), endHours, endMinutes));
-
-    const dtStamp = formatDateForICS(new Date());
-    const dtStart = formatDateForICS(startDate);
-    const dtEnd = formatDateForICS(endDate);
-    
-    const uid = `${dtStart}-zonamista@radio520.com.br`;
-    const summary = `ZONA MISTA`;
-    const description = `Lembrete para ouvir ZONA MISTA na Rádio 520. Acesse: https://www.radio520.com.br`;
-    const location = "Rádio 520";
-
-    const icsContent = [
-        'BEGIN:VCALENDAR',
-        'VERSION:2.0',
-        'PRODID:-//Rádio 520//WebApp//PT',
-        'BEGIN:VEVENT',
-        `UID:${uid}`,
-        `DTSTAMP:${dtStamp}`,
-        `DTSTART;TZID=America/Sao_Paulo:${dtStart}`,
-        `DTEND;TZID=America/Sao_Paulo:${dtEnd}`,
-        `SUMMARY:${summary}`,
-        `DESCRIPTION:${description}`,
-        `LOCATION:${location}`,
-        'END:VEVENT',
-        'END:VCALENDAR'
-    ].join('\r\n');
-
-    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    const fileName = `lembrete-zona-mista.ics`;
-    link.setAttribute('download', fileName);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-};
-
-
-const ScrollableText: React.FC<{text: string; className: string; threshold?: number;}> = ({ text, className, threshold = 28 }) => {
-    if (!text) return null;
-    const shouldScroll = text.length > threshold;
-
-    if (!shouldScroll) {
+    if (isOverflowing) {
+        const animationDuration = `${text.length / 5}s`;
         return (
-            <p className={`${className} truncate mt-1`} title={text}>
-                {text}
-            </p>
+            <div className={`marquee-container ${className}`}>
+                <div className="marquee-content" style={{ animationDuration }}>
+                    <span className="pr-16">{text}</span>
+                    <span>{text}</span>
+                </div>
+            </div>
         );
     }
 
-    const animationDuration = `${text.length / 4}s`;
-
     return (
-        <div className="marquee-container mt-1 h-7 md:h-8">
-            <div 
-                className="marquee-content"
-                style={{ animationDuration }}
-            >
-                <span className={className}>{text}</span>
-                <span className={`${className} pl-8`}>{text}</span>
-            </div>
+        <div ref={containerRef} className={`truncate ${className}`}>
+            <span ref={textRef}>{text}</span>
         </div>
     );
 };
 
-interface NowPlayingProps {
-    playerMode: PlayerMode;
-}
 
-const NowPlaying: React.FC<NowPlayingProps> = ({ playerMode }) => {
+const NowPlaying: React.FC<{ playerMode: PlayerMode }> = ({ playerMode }) => {
+    const [currentProgram, setCurrentProgram] = useState<Program>({ start: '', end: '', name: 'Carregando...', subtitle: 'Sintonizando a programação...' });
+    const [upNextProgram, setUpNextProgram] = useState<Program | null>(null);
     const { showNotification } = useNotification();
-    const [programInfo, setProgramInfo] = useState({
-        current: { name: 'Carregando...' } as Program,
-        next: { name: 'Carregando...' } as Program,
-        countdown: '00:00:00',
-        isNextDay: false,
-        schedule: [] as Program[],
-        progress: 0,
-    });
-    const [zonaMistaCountdown, setZonaMistaCountdown] = useState('00:00:00');
-    const [activeReminders, setActiveReminders] = useState<Set<string>>(new Set());
-    const prevProgramNameRef = useRef<string | null>(null);
-
-    const playerModeRef = useRef(playerMode);
-    useEffect(() => {
-        playerModeRef.current = playerMode;
-    }, [playerMode]);
-    
-    const notificationShownForProgram = useRef<string | null>(null);
-    const videoProgramName = 'MIX520 - AS MAIS TOCADAS PELO MUNDO';
-
-
-    useEffect(() => {
+    const [reminders, setReminders] = useState<string[]>(() => {
         try {
-            const storedReminders = localStorage.getItem('radio520-reminders');
-            if (storedReminders) {
-                setActiveReminders(new Set(JSON.parse(storedReminders)));
-            }
-        } catch (error) {
-            console.error("Failed to parse reminders from localStorage", error);
+            const saved = localStorage.getItem('radio520_reminders');
+            return saved ? JSON.parse(saved) : [];
+        } catch {
+            return [];
         }
+    });
+    const [countdown, setCountdown] = useState<string>('');
+
+    useEffect(() => {
+        localStorage.setItem('radio520_reminders', JSON.stringify(reminders));
+    }, [reminders]);
+
+    useEffect(() => {
+        const updateSchedule = () => {
+            const { dayOfWeek, hours, minutes } = getBrasiliaTimeInfo();
+            const nowInMinutes = hours * 60 + minutes;
+            const schedule = dailySchedules[dayOfWeek] || [];
+
+            let current: Program | undefined;
+            let next: Program | null = null;
+
+            for (let i = 0; i < schedule.length; i++) {
+                const program = schedule[i];
+                const start = timeToMinutes(program.start);
+                const end = timeToMinutes(program.end === '00:00' ? '24:00' : program.end);
+
+                if (nowInMinutes >= start && nowInMinutes < end) {
+                    current = program;
+                    if (i + 1 < schedule.length) {
+                        next = schedule[i + 1];
+                    } else {
+                        const nextDaySchedule = dailySchedules[(dayOfWeek + 1) % 7] || [];
+                        next = nextDaySchedule.length > 0 ? nextDaySchedule[0] : null;
+                    }
+                    break;
+                }
+            }
+            
+            if (!current && schedule.length > 0) {
+                 // Fallback if current time is somehow outside all slots (e.g., exactly at midnight)
+                 current = schedule[schedule.length - 1];
+            }
+
+            if (current) setCurrentProgram(current);
+            setUpNextProgram(next);
+        };
+        
+        updateSchedule();
+        const intervalId = setInterval(updateSchedule, 30000); // Check every 30 seconds for schedule changes
+        return () => clearInterval(intervalId);
     }, []);
 
     useEffect(() => {
-        let timerId: number;
-
-        const updateSchedule = () => {
-            const info = getProgramScheduleInfo();
-            setProgramInfo(info);
-
-            if (
-                prevProgramNameRef.current &&
-                info.current.name &&
-                info.current.name !== 'Carregando...' &&
-                info.current.name !== prevProgramNameRef.current
-            ) {
-                showNotification(`No ar agora: ${info.current.name}`);
-            }
-            prevProgramNameRef.current = info.current.name;
-
-            // New notification logic for video availability
-            if (
-                playerModeRef.current === PlayerMode.AUDIO &&
-                info.current.name === videoProgramName &&
-                notificationShownForProgram.current !== videoProgramName
-            ) {
-                notificationShownForProgram.current = videoProgramName; // Mark as shown to prevent re-triggering
-                setTimeout(() => {
-                    showNotification("ESTA TRANSMISSÃO ESTÁ DISPONÍVEL EM VÍDEO AO VIVO");
-                }, 3000); // Delay notification slightly
-            }
-
-            const zonaMistaTime = getZonaMistaCountdown();
-            setZonaMistaCountdown(zonaMistaTime);
-            
-            const msUntilNextSecond = 1000 - new Date().getMilliseconds();
-            timerId = window.setTimeout(updateSchedule, msUntilNextSecond);
-        };
-
-        updateSchedule();
-
-        return () => clearTimeout(timerId);
-    }, [showNotification]);
-
-    const updateReminders = (programName: string) => {
-        const newReminders = new Set(activeReminders);
-        if (!newReminders.has(programName)) {
-            newReminders.add(programName);
-            setActiveReminders(newReminders);
-            localStorage.setItem('radio520-reminders', JSON.stringify(Array.from(newReminders)));
+        if (upNextProgram?.name === 'ZONA MISTA') {
+            const timer = setInterval(() => {
+                setCountdown(getZonaMistaCountdown());
+            }, 1000);
+            return () => clearInterval(timer);
         }
-    };
+    }, [upNextProgram]);
 
-    const handleReminderClick = () => {
-        if (programInfo.next?.name && programInfo.next.name !== 'Carregando...') {
-            createICSFile(programInfo.next, programInfo.isNextDay);
-            updateReminders(programInfo.next.name);
-            showNotification(`Lembrete para "${programInfo.next.name}" criado!`);
-        }
+    const toggleReminder = (programName: string) => {
+        setReminders(prev => {
+            const isSet = prev.includes(programName);
+            if (isSet) {
+                showNotification(`Lembrete para "${programName}" removido.`);
+                return prev.filter(p => p !== programName);
+            } else {
+                showNotification(`Lembrete definido para "${programName}"!`);
+                return [...prev, programName];
+            }
+        });
     };
-    
-    const handleZonaMistaReminderClick = () => {
-        createZonaMistaICSFile();
-        updateReminders('ZONA MISTA');
-        showNotification('Lembrete para "ZONA MISTA" criado!');
-    };
-
-    const ZONA_MISTA_ICON_URL = "https://public-rf-upload.minhawebradio.net/249695/ad/7ccbc06131a36460e3563faff0789c09.png";
-    const [hours, minutes, seconds] = zonaMistaCountdown.split(':');
-
-    const isNextProgramReminderSet = programInfo.next?.name ? activeReminders.has(programInfo.next.name) : false;
-    const isZonaMistaReminderSet = activeReminders.has('ZONA MISTA');
 
     return (
-        <div className="relative text-center my-2 p-4 bg-black bg-opacity-30 rounded-lg w-full max-w-xl lg:max-w-2xl xl:max-w-3xl mx-auto shadow-lg transition-all duration-300">
-            <div className="flex justify-around items-start">
-                <div className="w-1/2 pr-3">
-                    <p className="text-xs md:text-sm text-gray-400 uppercase tracking-wider">AGORA, NA SUA RÁDIO!</p>
-                    <div className="w-full bg-gray-800 rounded-full h-1.5 mt-2 mb-1 shadow-inner">
-                        <div 
-                            className="bg-red-500 h-1.5 rounded-full transition-all duration-1000 ease-linear"
-                            style={{ width: `${programInfo.progress}%` }}
-                            aria-valuenow={programInfo.progress}
-                            aria-valuemin={0}
-                            aria-valuemax={100}
-                            role="progressbar"
-                            aria-label={`Progresso do programa: ${programInfo.current.name}`}
-                        ></div>
-                    </div>
-                     <div className="flex items-center justify-center space-x-2">
-                        <ScrollableText 
-                            text={programInfo.current.name}
-                            className="text-lg md:text-xl font-bold text-red-500 animate-pulse"
-                        />
-                        <ShareButton programName={programInfo.current.name} />
-                    </div>
+        <div className="w-full flex flex-col items-center space-y-2 p-4 rounded-xl bg-gray-900 bg-opacity-40 backdrop-blur-sm border border-gray-700/50 shadow-lg">
+            
+            <div className="w-full">
+                <div className="flex items-center text-red-400">
+                    <span className="relative flex h-2 w-2 mr-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                    </span>
+                    <p className="font-semibold text-xs uppercase tracking-wider text-glow">Tocando Agora</p>
                 </div>
-                
-                <div className="border-l border-gray-600 h-12 self-center"></div>
-
-                <div className="w-1/2 pl-3">
-                    <p className="text-xs md:text-sm text-gray-400 uppercase tracking-wider">A seguir</p>
-                    <div className="flex items-center justify-center space-x-2">
-                        <ScrollableText 
-                            text={programInfo.next.name}
-                            className="text-lg md:text-xl font-bold text-white flex-grow"
-                        />
-                        <button 
-                            onClick={handleReminderClick}
-                            className={`p-1 rounded-full hover:bg-gray-700 transition-colors duration-200 ${
-                                isNextProgramReminderSet
-                                ? 'text-orange-500 hover:text-orange-400'
-                                : 'text-gray-400 hover:text-white'
-                            }`}
-                            title={isNextProgramReminderSet ? "Lembrete criado!" : "Criar lembrete"}
-                            aria-label="Criar lembrete para o próximo programa"
-                        >
-                            <BellIcon className="w-5 h-5" />
-                        </button>
+                <div className="flex items-center">
+                    <div className="flex-grow min-w-0">
+                        <ScrollableText text={currentProgram.name} className="text-xl font-bold text-white text-glow-purple" />
+                        {currentProgram.subtitle && (
+                            <ScrollableText text={currentProgram.subtitle} className="text-sm text-gray-300" />
+                        )}
                     </div>
+                    <ShareButton programName={currentProgram.name} />
                 </div>
             </div>
-
-            <div className="mt-3 pt-3 border-t border-gray-700 flex flex-col md:flex-row justify-around items-center gap-4 md:gap-8 px-2">
-                {/* Left Part: Image and Title */}
-                <div className="flex items-center gap-4 text-left">
-                    <img src={ZONA_MISTA_ICON_URL} alt="ZONA MISTA" className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full border-2 border-purple-500 shadow-lg object-contain p-2" />
-                    <div>
-                        <p className="text-sm font-bold text-purple-400 uppercase tracking-widest">Vem aí...</p>
-                        <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">ZONA MISTA</h3>
-                        <p className="text-xs text-gray-400">Todo domingo, às 20:00.</p>
-                    </div>
+            
+            {upNextProgram?.name === 'ZONA MISTA' && countdown && (
+                <div className="w-full text-center py-1">
+                    <p className="text-sm text-cyan-300 animate-fade-in">ZONA MISTA começa em: <span className="font-mono font-bold tracking-wider">{countdown}</span></p>
                 </div>
+            )}
 
-                {/* Right Part: Countdown and Buttons */}
-                <div className="flex flex-col items-center gap-2">
-                    <div className="flex items-baseline space-x-1 font-mono text-white">
-                        <div className="flex flex-col items-center">
-                            <span className="text-2xl sm:text-3xl md:text-4xl font-bold">{hours}</span>
-                            <span className="text-xs uppercase text-gray-400">h</span>
+            {upNextProgram && (
+                <>
+                    <div className="w-full h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent my-1"></div>
+                    <div className="mt-2 flex items-center w-full">
+                        <div className="flex-shrink-0 mr-3">
+                            <button
+                                onClick={() => toggleReminder(upNextProgram.name)}
+                                className={`p-1.5 rounded-full transition-all duration-300 ${reminders.includes(upNextProgram.name) ? 'bg-yellow-400 text-gray-900 ring-2 ring-offset-2 ring-offset-gray-800 ring-yellow-400' : 'bg-gray-700 text-gray-400 hover:bg-gray-600 hover:text-white'}`}
+                                title={reminders.includes(upNextProgram.name) ? 'Remover lembrete' : 'Lembrar-me'}
+                                aria-label={reminders.includes(upNextProgram.name) ? `Remover lembrete para ${upNextProgram.name}` : `Definir lembrete para ${upNextProgram.name}`}
+                            >
+                                <BellIcon className="w-6 h-6" />
+                            </button>
                         </div>
-                        <span className="text-2xl sm:text-3xl md:text-4xl font-bold">:</span>
-                        <div className="flex flex-col items-center">
-                            <span className="text-2xl sm:text-3xl md:text-4xl font-bold">{minutes}</span>
-                            <span className="text-xs uppercase text-gray-400">m</span>
+                        <div className="flex-grow min-w-0">
+                            <p className="text-xs text-gray-400 uppercase tracking-wider">A Seguir</p>
+                            <ScrollableText text={upNextProgram.name} className="font-semibold text-gray-200" />
+                            {upNextProgram.subtitle && (
+                                <ScrollableText text={upNextProgram.subtitle} className="text-xs text-gray-400" />
+                            )}
                         </div>
-                        <span className="text-2xl sm:text-3xl md:text-4xl font-bold">:</span>
-                        <div className="flex flex-col items-center">
-                            <span className="text-2xl sm:text-3xl md:text-4xl font-bold">{seconds}</span>
-                            <span className="text-xs uppercase text-gray-400">s</span>
-                        </div>
+                        <ShareButton programName={upNextProgram.name} />
                     </div>
-                    <div className="flex items-center space-x-2">
-                        <button
-                            onClick={handleZonaMistaReminderClick}
-                            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors duration-200 ${
-                                isZonaMistaReminderSet
-                                ? 'bg-orange-600 text-white cursor-default'
-                                : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white'
-                            }`}
-                            aria-label="Criar lembrete para ZONA MISTA"
-                        >
-                            <BellIcon className="w-4 h-4" />
-                            <span>{isZonaMistaReminderSet ? "Lembrete Criado" : "Criar Lembrete"}</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
+                </>
+            )}
         </div>
     );
 };

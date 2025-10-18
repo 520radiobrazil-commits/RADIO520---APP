@@ -49,51 +49,53 @@ const App: React.FC = () => {
             {playerMode === PlayerMode.VIDEO ? <VideoPlayer /> : <AudioPlayer />}
           </div>
           
-          <div className="w-full flex flex-nowrap items-center justify-center gap-2 overflow-x-auto px-2 py-2 scrollbar-hide">
-              <button
-                onClick={() => setPlayerMode(PlayerMode.AUDIO)}
-                className={`${baseButtonClasses} ${playerMode === PlayerMode.AUDIO ? activeAudioButtonClasses : inactiveGenericButtonClasses}`}
-              >
-                <HeadphoneIcon className="w-3.5 h-3.5" />
-                <span><span className="hidden sm:inline">Ouvir </span>RÁDIO</span>
-              </button>
-               <button
-                  onClick={() => setPlayerMode(PlayerMode.VIDEO)}
-                  className={`${baseButtonClasses} ${playerMode === PlayerMode.VIDEO ? activeVideoButtonClasses : inactiveVideoButtonClasses}`}
+          <div className="w-full max-w-xl lg:max-w-2xl xl:max-w-3xl flex flex-col items-center gap-2">
+            <div className="w-full flex flex-nowrap items-center justify-center gap-2 overflow-x-auto px-2 py-2 scrollbar-hide">
+                <button
+                  onClick={() => setPlayerMode(PlayerMode.AUDIO)}
+                  className={`${baseButtonClasses} ${playerMode === PlayerMode.AUDIO ? activeAudioButtonClasses : inactiveGenericButtonClasses}`}
                 >
-                  <VideoIcon className="w-3.5 h-3.5" />
-                  <span><span className="hidden sm:inline">Vídeo </span>LIVE</span>
+                  <HeadphoneIcon className="w-3.5 h-3.5" />
+                  <span><span className="hidden sm:inline">Ouvir </span>RÁDIO</span>
                 </button>
-              <a
-                href="https://wa.me/5511988277967?text=Olá%20Rádio%20520!"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`${baseButtonClasses} bg-green-600 text-white hover:bg-green-700 focus:ring-green-500`}
+                 <button
+                    onClick={() => setPlayerMode(PlayerMode.VIDEO)}
+                    className={`${baseButtonClasses} ${playerMode === PlayerMode.VIDEO ? activeVideoButtonClasses : inactiveVideoButtonClasses}`}
+                  >
+                    <VideoIcon className="w-3.5 h-3.5" />
+                    <span><span className="hidden sm:inline">Vídeo </span>LIVE</span>
+                  </button>
+                <a
+                  href="https://wa.me/5511988277967?text=Olá%20Rádio%20520!"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`${baseButtonClasses} bg-green-600 text-white hover:bg-green-700 focus:ring-green-500`}
+                  >
+                  <WhatsAppIcon className="w-3.5 h-3.5" />
+                  <span>CHAT</span>
+                </a>
+                <a
+                  href="https://www.radio520.com.br"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`${baseButtonClasses} bg-purple-600 text-white hover:bg-purple-700`}
                 >
-                <WhatsAppIcon className="w-3.5 h-3.5" />
-                <span>CHAT</span>
-              </a>
-              <a
-                href="https://www.radio520.com.br"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`${baseButtonClasses} bg-purple-600 text-white hover:bg-purple-700`}
-              >
-                <GlobeIcon className="w-3.5 h-3.5" />
-                <span><span className="hidden sm:inline">NOSSO </span>SITE</span>
-              </a>
-              <a
-                href="https://open.spotify.com/user/31bozpr55fnrgkm7yy7cctairaty?si=QSuJlrPKS9690cgtcpvKWQ"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`${baseButtonClasses} bg-indigo-600 text-white hover:bg-indigo-700`}
-              >
-                <PodcastIcon className="w-3.5 h-3.5" />
-                <span>PODCASTS</span>
-              </a>
-          </div>
+                  <GlobeIcon className="w-3.5 h-3.5" />
+                  <span><span className="hidden sm:inline">NOSSO </span>SITE</span>
+                </a>
+                <a
+                  href="https://open.spotify.com/user/31bozpr55fnrgkm7yy7cctairaty?si=QSuJlrPKS9690cgtcpvKWQ"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`${baseButtonClasses} bg-indigo-600 text-white hover:bg-indigo-700`}
+                >
+                  <PodcastIcon className="w-3.5 h-3.5" />
+                  <span>PODCASTS</span>
+                </a>
+            </div>
 
-          <NowPlaying playerMode={playerMode} />
+            <NowPlaying playerMode={playerMode} />
+          </div>
 
         </main>
         <footer className="text-center p-3 sm:p-4 lg:p-6 text-gray-400">
