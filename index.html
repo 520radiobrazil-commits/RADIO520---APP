@@ -254,6 +254,23 @@
         -webkit-animation: warning-pulse 1.5s ease-in-out infinite;
         animation: warning-pulse 1.5s ease-in-out infinite;
       }
+
+      @-webkit-keyframes lightning-flash {
+        0%, 48%, 100% { opacity: 0.7; filter: drop-shadow(0 0 2px currentColor); }
+        50% { opacity: 1; filter: drop-shadow(0 0 6px currentColor); }
+        52% { opacity: 0.6; }
+        54% { opacity: 1; filter: drop-shadow(0 0 6px currentColor); }
+      }
+      @keyframes lightning-flash {
+        0%, 48%, 100% { opacity: 0.7; filter: drop-shadow(0 0 2px currentColor); }
+        50% { opacity: 1; filter: drop-shadow(0 0 6px currentColor); }
+        52% { opacity: 0.6; }
+        54% { opacity: 1; filter: drop-shadow(0 0 6px currentColor); }
+      }
+      .animate-lightning-flash {
+        -webkit-animation: lightning-flash 2.5s ease-in-out infinite;
+        animation: lightning-flash 2.5s ease-in-out infinite;
+      }
     </style>
   <script type="importmap">
 {

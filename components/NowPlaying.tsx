@@ -83,27 +83,31 @@ const getZonaMistaCountdown = (): string => {
 interface ScrollableTextProps {
     text: string;
     className?: string;
+    forceScroll?: boolean;
 }
 
-const ScrollableText: React.FC<ScrollableTextProps> = ({ text, className }) => {
-    const containerRef = useRef<HTMLDivElement>(null);
-    const textRef = useRef<HTMLSpanElement>(null);
+const ScrollableText: React.FC<ScrollableTextProps> = ({ text, className, forceScroll = false }) => {
     const [isOverflowing, setIsOverflowing] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
 
-    // useLayoutEffect is critical to measure the DOM before the browser paints.
     useLayoutEffect(() => {
+        // If scrolling is forced, we don't need to measure or manage state.
+        if (forceScroll) {
+            // Reset state in case the component properties change
+            if (isOverflowing) setIsOverflowing(false);
+            return;
+        }
+        
+        // This function will only be called for dynamic text (not subtitles)
         const checkOverflow = () => {
-            const container = containerRef.current;
-            const textEl = textRef.current;
-            
-            // We must have both the container and the text element to perform a measurement.
-            if (container && textEl) {
-                const hasOverflow = textEl.scrollWidth > container.clientWidth;
-                
-                // Only update state if the overflow status has actually changed.
-                // This is the key to preventing an infinite render loop.
-                if (hasOverflow !== isOverflowing) {
-                    setIsOverflowing(hasOverflow);
+            const element = containerRef.current;
+            // The ref is only present on the static text container
+            if (element) {
+                const hasOverflow = element.scrollWidth > element.clientWidth;
+                // Only trigger a state change if overflow is detected.
+                // Once it's scrolling, we don't need to check anymore.
+                if (hasOverflow && !isOverflowing) {
+                    setIsOverflowing(true);
                 }
             }
         };
@@ -113,31 +117,30 @@ const ScrollableText: React.FC<ScrollableTextProps> = ({ text, className }) => {
         window.addEventListener('resize', checkOverflow);
         return () => window.removeEventListener('resize', checkOverflow);
 
-    // This effect MUST re-run when the text changes (to re-measure).
-    // The isOverflowing dependency was causing a re-render loop and was removed.
-    }, [text]);
+    }, [text, forceScroll, isOverflowing]);
 
-    // The component's structure is now consistent to avoid layout flickers.
-    // We always render the container and the hidden measurement span.
-    return (
-        <div ref={containerRef} className={`relative whitespace-nowrap overflow-hidden ${className}`}>
-            
-            {/* This span is ONLY for measurement. It's always rendered, never visible, and its ref is stable. */}
-            <span ref={textRef} className="invisible absolute whitespace-nowrap -z-10">{text}</span>
-            
-            {isOverflowing ? (
-                // If overflowing, render the animated marquee.
+    const shouldScroll = forceScroll || isOverflowing;
+
+    // If text should scroll (either forced or because it's overflowing)
+    if (shouldScroll) {
+        return (
+            <div className={`whitespace-nowrap overflow-hidden ${className}`}>
                 <div 
                     className="marquee-content" 
-                    style={{ animationDuration: `${text.length / 5}s` }}
+                    style={{ animationDuration: `${Math.max(text.length / 5, 5)}s` }}
                 >
                     <span className="pr-16">{text}</span>
                     <span>{text}</span>
                 </div>
-            ) : (
-                // If not overflowing, render the static text.
-                <span>{text}</span>
-            )}
+            </div>
+        );
+    }
+    
+    // If not scrolling, render the static text in a measurable container.
+    // This allows the useLayoutEffect to determine if it's overflowing.
+    return (
+        <div ref={containerRef} className={`whitespace-nowrap overflow-hidden ${className}`}>
+            <span>{text}</span>
         </div>
     );
 };
@@ -262,7 +265,7 @@ const NowPlaying: React.FC<{ playerMode: PlayerMode }> = ({ playerMode }) => {
                     <div className="flex-grow min-w-0">
                         <ScrollableText text={currentProgram.name} className="text-xl font-bold text-white text-glow-purple" />
                         {currentProgram.subtitle && (
-                            <ScrollableText text={currentProgram.subtitle} className="text-sm text-gray-300" />
+                            <ScrollableText text={currentProgram.subtitle} className="text-sm text-gray-300" forceScroll={true} />
                         )}
                     </div>
                     <ShareButton programName={currentProgram.name} />
@@ -279,7 +282,7 @@ const NowPlaying: React.FC<{ playerMode: PlayerMode }> = ({ playerMode }) => {
                         <div className="flex-grow min-w-0">
                             <ScrollableText text={upNextProgram.name} className="font-bold text-lg" />
                              {upNextProgram.subtitle && (
-                                <ScrollableText text={upNextProgram.subtitle} className="text-sm text-gray-800" />
+                                <ScrollableText text={upNextProgram.subtitle} className="text-sm text-gray-800" forceScroll={true} />
                             )}
                             <p className="font-mono text-sm tracking-wider text-yellow-900 mt-1">
                                 Começa em: <span className="font-bold">{countdown}</span>
@@ -313,7 +316,7 @@ const NowPlaying: React.FC<{ playerMode: PlayerMode }> = ({ playerMode }) => {
                         <p className="text-xs text-gray-400 uppercase tracking-wider">A Seguir</p>
                         <ScrollableText text={upNextProgram.name} className="font-semibold text-gray-200" />
                         {upNextProgram.subtitle && (
-                            <ScrollableText text={upNextProgram.subtitle} className="text-xs text-gray-400" />
+                            <ScrollableText text={upNextProgram.subtitle} className="text-xs text-gray-400" forceScroll={true} />
                         )}
                     </div>
                     <div className="flex items-center space-x-2 pl-2">
@@ -346,7 +349,7 @@ const NowPlaying: React.FC<{ playerMode: PlayerMode }> = ({ playerMode }) => {
                                 <p className="text-xs font-bold uppercase tracking-wider text-purple-400 text-glow-purple">Vem Aí</p>
                                 <ScrollableText text={featuredProgram.name} className="font-bold text-lg text-white" />
                                 {featuredProgram.subtitle && (
-                                    <ScrollableText text={featuredProgram.subtitle} className="text-sm text-gray-300" />
+                                    <ScrollableText text={featuredProgram.subtitle} className="text-sm text-gray-300" forceScroll={true} />
                                 )}
                             </div>
                             <div className="flex items-center space-x-2 pl-2">

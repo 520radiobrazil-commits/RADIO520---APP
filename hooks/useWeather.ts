@@ -76,6 +76,84 @@ const generateAlert = (daily: any, current: any): string | null => {
 
 const LOCATION_STORAGE_KEY = 'radio520_weather_location';
 
+/**
+ * Attempts to get a city name from coordinates using multiple geocoding services.
+ */
+const reverseGeocode = async (lat: number, lon: number): Promise<string | null> => {
+    // Attempt 1: Open-Meteo
+    try {
+        const response = await fetch(`https://geocoding-api.open-meteo.com/v1/reverse?latitude=${lat}&longitude=${lon}&language=pt`);
+        if (!response.ok) {
+            throw new Error(`Open-Meteo API failed with status: ${response.status}`);
+        }
+        const data = await response.json();
+        const locationName = data.name || data.city || data.admin4 || data.admin3 || data.admin2;
+        if (locationName) {
+            return locationName;
+        }
+        console.warn("Open-Meteo did not return a valid location name.", data);
+    } catch (error) {
+        console.warn("Reverse geocoding with Open-Meteo failed, trying fallback.", error);
+    }
+
+    // Attempt 2: Nominatim (OpenStreetMap)
+    try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`, {
+            headers: { 'Accept-Language': 'pt-BR,pt;q=0.9' }
+        });
+        if (!response.ok) {
+            throw new Error(`Nominatim API failed with status: ${response.status}`);
+        }
+        const data = await response.json();
+        if (data && data.address) {
+            const locationName = data.address.city || data.address.town || data.address.village || data.address.county || data.address.state;
+            if (locationName) return locationName;
+        }
+        console.warn("Nominatim did not return a valid location name.", data);
+    } catch (error) {
+        console.error("Reverse geocoding with Nominatim also failed.", error);
+    }
+
+    return null;
+};
+
+/**
+ * Attempts to get location from user's IP address using multiple services.
+ */
+const getIpBasedLocation = async (): Promise<Location> => {
+    // Attempt 1: ipinfo.io (often more reliable with ad-blockers)
+    try {
+        const response = await fetch('https://ipinfo.io/json');
+        if (!response.ok) throw new Error(`ipinfo.io status: ${response.status}`);
+        const data = await response.json();
+        if (typeof data === 'object' && data !== null && data.city && data.loc) {
+            const [lat, lon] = data.loc.split(',').map(Number);
+            return { name: data.city, latitude: lat, longitude: lon };
+        }
+        throw new Error('ipinfo.io returned invalid response');
+    } catch (error) {
+        console.warn("IP geolocation via ipinfo.io failed. Trying next provider.", error);
+    }
+
+    // Attempt 2: ip-api.com
+    try {
+        const response = await fetch('https://ip-api.com/json/?fields=status,message,city,lat,lon');
+        if (!response.ok) throw new Error(`ip-api.com status: ${response.status}`);
+        const data = await response.json();
+        if (typeof data === 'object' && data !== null && data.status === 'success' && data.city) {
+            return { name: data.city, latitude: data.lat, longitude: data.lon };
+        }
+        throw new Error(`ip-api.com error: ${data.message || 'Invalid response'}`);
+    } catch (error) {
+        console.warn("IP geolocation via ip-api.com failed. Using final fallback.", error);
+    }
+
+    // Final fallback
+    console.log("Both IP geolocation providers failed. Using São Paulo as a fallback location.");
+    return { name: 'São Paulo', latitude: -23.5505, longitude: -46.6333 };
+};
+
+
 const useWeather = () => {
   const [weather, setWeather] = useState<Omit<WeatherData, 'locationName'> | null>(null);
   const [location, setLocation] = useState<Location | null>(null);
@@ -143,87 +221,34 @@ const useWeather = () => {
             }
         }
 
-        const reverseGeocode = async (lat: number, lon: number): Promise<string | null> => {
-            try {
-                const response = await fetch(`https://geocoding-api.open-meteo.com/v1/reverse?latitude=${lat}&longitude=${lon}`);
-                if (!response.ok) {
-                    console.error(`Reverse geocoding API failed with status: ${response.status}`);
-                    return null;
-                }
-                const data = await response.json();
-                if (!data || Object.keys(data).length === 0) {
-                    console.warn("Reverse geocoding returned empty data.");
-                    return null;
-                }
-                // Use the most specific name available
-                return data.name || data.admin4 || data.admin3 || data.admin2 || null;
-            } catch (error) {
-                console.error("Reverse geocoding failed", error);
-                return null;
-            }
-        };
-
-        const fallbackToIp = async () => {
-            // Attempt 1: ip-api.com
-            try {
-                const response = await fetch('https://ip-api.com/json/?fields=status,message,city,lat,lon');
-                if (!response.ok) throw new Error(`ip-api.com status: ${response.status}`);
-                const data = await response.json();
-                if (data.status === 'success' && data.city) {
-                    saveLocation({ name: data.city, latitude: data.lat, longitude: data.lon });
-                    return;
-                }
-                if (data.message) throw new Error(`ip-api.com message: ${data.message}`);
-            } catch (error) {
-                console.warn("IP geolocation via ip-api.com failed. Trying next provider.", error);
-            }
-
-            // Attempt 2: ipinfo.io
-            try {
-                const response = await fetch('https://ipinfo.io/json');
-                if (!response.ok) throw new Error(`ipinfo.io status: ${response.status}`);
-                const data = await response.json();
-                if (data.city && data.loc) {
-                    const [lat, lon] = data.loc.split(',').map(Number);
-                    saveLocation({ name: data.city, latitude: lat, longitude: lon });
-                    return;
-                }
-            } catch (error) {
-                console.warn("IP geolocation via ipinfo.io failed. Using final fallback.", error);
-            }
-
-            // Final fallback
-            saveLocation({ name: 'São Paulo', latitude: -23.5505, longitude: -46.6333 });
-        };
-
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 async (position) => {
                     const { latitude, longitude } = position.coords;
                     const cityName = await reverseGeocode(latitude, longitude);
                     if (cityName) {
-                        saveLocation({
-                            name: cityName,
-                            latitude: latitude,
-                            longitude: longitude,
-                        });
+                        saveLocation({ name: cityName, latitude, longitude });
                     } else {
-                        await fallbackToIp();
+                        // If reverse geocoding fails, fallback to IP-based location
+                        const ipLocation = await getIpBasedLocation();
+                        saveLocation(ipLocation);
                     }
                 },
-                (error) => {
+                async (error) => {
                     console.warn(`Geolocation error (${error.code}): ${error.message}`);
-                    fallbackToIp();
+                    const ipLocation = await getIpBasedLocation();
+                    saveLocation(ipLocation);
                 },
                 {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 0,
+                    enableHighAccuracy: false,
+                    timeout: 15000,
+                    maximumAge: 60000,
                 }
             );
         } else {
             console.warn("Geolocation not supported by this browser.");
-            fallbackToIp();
+            const ipLocation = await getIpBasedLocation();
+            saveLocation(ipLocation);
         }
     };
 

@@ -41,7 +41,7 @@ const AlertIndicator: React.FC<{ alert: string | null }> = ({ alert }) => {
 
     switch (alert) {
         case "Alerta de Trovoada":
-            iconElement = <ThunderstormIcon className="w-4 h-4 animate-pulse" />;
+            iconElement = <ThunderstormIcon className="w-4 h-4 animate-lightning-flash" />;
             shortText = "Trovoada";
             containerStyle = "text-yellow-300";
             break;
