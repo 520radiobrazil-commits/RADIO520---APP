@@ -4,13 +4,15 @@ import PrecipitationIcon from './icons/PrecipitationIcon';
 import UvIndexIcon from './icons/UvIndexIcon';
 import WarningIcon from './icons/WarningIcon';
 import WeatherIcon from './WeatherIcon';
-import ThunderstormIcon from './icons/ThunderstormIcon';
-import RainIcon from './icons/RainIcon';
+import LocationMarkerIcon from './icons/LocationMarkerIcon';
+import RefreshIcon from './icons/RefreshIcon';
 
 interface WeatherDisplayProps {
   weather: WeatherData | null;
   isLoading: boolean;
+  isRefreshing: boolean;
   error: string | null;
+  refreshWeather: () => void;
 }
 
 const getUvIndexStyle = (uvIndex: number) => {
@@ -21,62 +23,7 @@ const getUvIndexStyle = (uvIndex: number) => {
   return 'text-purple-400';
 };
 
-// This component displays either a specific weather alert or the default "Live" indicator.
-const AlertIndicator: React.FC<{ alert: string | null }> = ({ alert }) => {
-    if (!alert) {
-        return (
-            <div className="flex items-center space-x-1.5" title="Você está ouvindo a transmissão ao vivo">
-                <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-                </span>
-                <p className="text-red-400 font-bold text-xs tracking-wide text-glow">AO VIVO</p>
-            </div>
-        );
-    }
-
-    let iconElement;
-    let shortText;
-    let containerStyle;
-
-    switch (alert) {
-        case "Alerta de Trovoada":
-            iconElement = <ThunderstormIcon className="w-4 h-4 animate-lightning-flash" />;
-            shortText = "Trovoada";
-            containerStyle = "text-yellow-300";
-            break;
-        case "Alerta de Chuva/Neve Forte":
-            iconElement = <RainIcon className="w-4 h-4 animate-rain-drop" />;
-            shortText = "Chuva Forte";
-            containerStyle = "text-sky-300";
-            break;
-        case "Índice UV Extremo":
-            iconElement = <UvIndexIcon className="w-4 h-4 animate-uv-glow" />;
-            shortText = "UV Extremo";
-            containerStyle = "text-purple-400";
-            break;
-        case "Alta Chance de Chuva":
-            iconElement = <PrecipitationIcon className="w-4 h-4 animate-rain-drop" />;
-            shortText = "Chance de Chuva";
-            containerStyle = "text-cyan-400";
-            break;
-        default:
-            iconElement = <WarningIcon className="w-4 h-4 animate-warning-pulse" />;
-            shortText = "Alerta";
-            containerStyle = "text-orange-400";
-            break;
-    }
-
-    return (
-        <div className={`flex items-center space-x-1.5 ${containerStyle}`} title={alert}>
-            {iconElement}
-            <p className="font-bold text-xs tracking-wide">{shortText}</p>
-        </div>
-    );
-};
-
-
-const WeatherDisplay: React.FC<WeatherDisplayProps> = ({ weather, isLoading, error }) => {
+const WeatherDisplay: React.FC<WeatherDisplayProps> = ({ weather, isLoading, isRefreshing, error, refreshWeather }) => {
   const renderLoading = () => (
     <div className="flex items-center px-3 py-1 text-xs text-gray-400">
       Carregando clima...
@@ -96,45 +43,60 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({ weather, isLoading, err
     const uvStyle = getUvIndexStyle(weather.uvIndex);
 
     return (
-      <div className="flex items-center space-x-2 text-white" title={`${weather.description} em ${weather.locationName}`}>
-        <div className="w-px h-5 bg-gray-600 self-center"></div>
-        {/* Icon & Temp */}
-        <div className="flex-shrink-0 flex items-center space-x-1">
-          <div className="w-5 h-5 text-cyan-300">
-             <WeatherIcon weatherCode={weather.weatherCode} />
-          </div>
-          <span className="font-mono text-xs font-medium text-glow-cyan">{weather.temperature}°C</span>
+      <div className="flex items-center space-x-2 sm:space-x-3 text-white text-xs">
+        {/* Location and Alert */}
+        <div className="flex items-center space-x-1.5" title={`Clima para ${weather.locationName}`}>
+          <LocationMarkerIcon className="w-4 h-4 text-sky-300 flex-shrink-0" />
+          <span className="font-medium truncate max-w-[100px] sm:max-w-none">{weather.locationName}</span>
+          {weather.alert && (
+            <span className="text-yellow-400 font-bold hidden sm:inline" title={weather.alert}>
+              ({weather.alert.replace('Alerta de ', '').replace('Índice', '')})
+            </span>
+          )}
         </div>
-
-        {/* Details */}
-        <div className="flex items-center space-x-2">
-            <div className="w-px h-5 bg-gray-600 self-center"></div>
-            <div className="flex-shrink-0 flex items-center space-x-2 text-xs">
-              <div title={`Chance de chuva: ${weather.precipitationChance}%`}>
-                    <div className="flex items-center space-x-1 text-sky-300">
-                        <PrecipitationIcon className="w-3.5 h-3.5" />
-                        <span className="font-mono font-medium">{weather.precipitationChance}%</span>
-                    </div>
-                </div>
-                <div className="w-px h-4 bg-gray-600 self-center"></div>
-                <div title={`Índice UV: ${weather.uvIndex}`}>
-                    <div className={`flex items-center space-x-1 ${uvStyle}`}>
-                        <UvIndexIcon className="w-3.5 h-3.5" />
-                        <span className="font-mono font-medium">{weather.uvIndex}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div className="w-px h-5 bg-gray-600 self-center"></div>
         
-        <AlertIndicator alert={weather.alert} />
+        <div className="w-px h-5 bg-gray-600 self-center"></div>
+
+        {/* Weather Details */}
+        <div className="flex items-center space-x-2">
+          {/* Icon & Temp */}
+          <div className="flex-shrink-0 flex items-center space-x-1" title={weather.description}>
+            <div className="w-5 h-5 text-cyan-300">
+              <WeatherIcon weatherCode={weather.weatherCode} />
+            </div>
+            <span className="font-mono font-medium text-glow-cyan">{weather.temperature}°C</span>
+          </div>
+          {/* Precip & UV on larger screens */}
+          <div className="hidden md:flex items-center space-x-2">
+            <div title={`Chance de chuva: ${weather.precipitationChance}%`} className="flex items-center space-x-1 text-sky-300">
+              <PrecipitationIcon className="w-3.5 h-3.5" />
+              <span className="font-mono font-medium">{weather.precipitationChance}%</span>
+            </div>
+            <div title={`Índice UV: ${weather.uvIndex}`} className={`flex items-center space-x-1 ${uvStyle}`}>
+              <UvIndexIcon className="w-3.5 h-3.5" />
+              <span className="font-mono font-medium">{weather.uvIndex}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Refresh Button */}
+        <button 
+          onClick={refreshWeather}
+          disabled={isRefreshing}
+          className="p-1 rounded-full text-gray-400 transition-colors hover:text-white hover:bg-gray-700 disabled:cursor-wait"
+          title="Atualizar clima"
+          aria-label="Atualizar informações do clima"
+        >
+          <RefreshIcon className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+        </button>
       </div>
     );
   };
   
   if (isLoading && !weather) return renderLoading();
-  if (error || !weather) return renderError();
+  // Don't show error if we are just refreshing in the background
+  if (error && !weather) return renderError();
+  if (!weather) return null; // Handle case where there's no error but no weather yet
   
   return renderWeather();
 };

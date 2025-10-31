@@ -271,6 +271,20 @@
         -webkit-animation: lightning-flash 2.5s ease-in-out infinite;
         animation: lightning-flash 2.5s ease-in-out infinite;
       }
+
+      /* Standard spin animation for refresh icon */
+      @-webkit-keyframes spin {
+        from { -webkit-transform: rotate(0deg); }
+        to { -webkit-transform: rotate(360deg); }
+      }
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+      .animate-spin {
+        -webkit-animation: spin 1s linear infinite;
+        animation: spin 1s linear infinite;
+      }
     </style>
   <script type="importmap">
 {
