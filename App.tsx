@@ -68,7 +68,7 @@ const App: React.FC = () => {
                   <span>CHAT</span>
                 </a>
                 <a
-                  href="https://www.radio520.com.br"
+                  href="https://radio520web.netlify.app"
                   target="_blank"
                   rel="noopener noreferrer"
                   className={`${baseButtonClasses} bg-purple-600 text-white hover:bg-purple-700`}
