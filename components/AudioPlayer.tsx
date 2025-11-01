@@ -8,6 +8,12 @@ import NewsTicker from './NewsTicker';
 const AUDIO_STREAM_URL = "https://servidor40.brlogic.com:7054/live";
 const BACKGROUND_IMAGE_URL = "https://public-rf-upload.minhawebradio.net/249695/ad/e43dfc75b170b1d37316dc0dd84d50d1.png";
 
+// Add gtag declaration for TypeScript
+declare global {
+  interface Window {
+    gtag?: (command: string, action: string, params?: { [key: string]: any }) => void;
+  }
+}
 
 const AudioPlayer: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -23,6 +29,15 @@ const AudioPlayer: React.FC = () => {
     }
     if (!isPlaying) {
       setIsLoading(true);
+      // Send play event to Google Analytics
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', 'play', { source: 'Radio520Player' });
+      }
+    } else {
+      // Send pause event to Google Analytics
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', 'pause', { source: 'Radio520Player' });
+      }
     }
     setIsPlaying(prev => !prev);
   };
