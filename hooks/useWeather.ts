@@ -52,25 +52,6 @@ const getWeatherDescription = (code: number): string => {
 };
 
 const generateAlert = (daily: any, current: any): string | null => {
-    const weatherCode = current.weather_code;
-    if ([95, 96, 99].includes(weatherCode)) {
-        return "Alerta de Trovoada";
-    }
-    if ([65, 67, 75, 82, 86].includes(weatherCode)) {
-        return "Alerta de Chuva/Neve Forte";
-    }
-    
-    // Alert is based on the daily maximum UV index for better safety warnings
-    const uvIndex = daily.uv_index_max?.[0];
-    if (uvIndex && uvIndex > 8) {
-        return "Índice UV Extremo";
-    }
-
-    const precipChance = daily.precipitation_probability_max?.[0];
-    if (precipChance && precipChance > 80) {
-        return "Alta Chance de Chuva";
-    }
-
     return null;
 };
 
