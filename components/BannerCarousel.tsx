@@ -2,17 +2,12 @@ import React, { useState, useEffect } from 'react';
 
 const banners = [
   {
-    imageUrl: 'https://public-rf-upload.minhawebradio.net/249695/ad/9a12d0c1f1200dfdd0595d8d0ac85ced.jpg',
-    linkUrl: 'https://radio520.webradiosite.com/pagina/3177862/popnews/',
-    alt: 'Banner Promocional PopNews'
-  },
-  {
     imageUrl: 'https://public-rf-upload.minhawebradio.net/249695/ad/32dc318f7254d01a058188801d808ff5.png',
     linkUrl: 'https://radio520.webradiosite.com/contato/',
     alt: 'Banner Contato'
   },
   {
-    imageUrl: 'https://public-rf-upload.minhawebradio.net/249695/slider/e8bf1632b5a8b307395370d345a3447e.jpg',
+    imageUrl: 'https://public-rf-upload.minhawebradio.net/249695/ad/47db64471da4eb28a3bf1950c96a2611.jpg',
     linkUrl: 'https://instagram.com/radio520',
     alt: 'Siga no Instagram'
   }
